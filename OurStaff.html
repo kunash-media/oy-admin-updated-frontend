@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Staff</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+    />
+
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-family: Arial, sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      .navbar {
+        background-color: #2d2d30;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        font-family: "roboto";
+      }
+
+      .navbar .dashboard {
+        color: white;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+      }
+
+      .navbar .menu-icon {
+        color: white;
+        margin-left: 15px;
+        cursor: pointer;
+      }
+
+      .navbar .icons {
+        display: flex;
+        align-items: center;
+      }
+
+      .icons > i {
+        margin-right: 20px;
+      }
+
+      .profile-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        background: white;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        width: 150px;
+        z-index: 1000;
+      }
+
+      .profile-menu a {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        color: black;
+      }
+
+      .profile-menu a:hover {
+        background: #f1f1f1;
+      }
+
+      .profile-icon {
+        cursor: pointer;
+        color: white;
+        font-size: 1.2em;
+      }
+
+      .left-nav {
+        width: 220px;
+        background-color: #2d2d30;
+        position: fixed;
+        top: 50px;
+        left: 0;
+        height: calc(100vh - 50px);
+        display: none;
+        padding: 10px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        z-index: 999;
+        font-family: "Open Sans";
+      }
+
+      .left-nav .category {
+        cursor: pointer;
+        margin: 15px 0;
+        color: rgb(255, 255, 255);
+      }
+
+      .left-nav .sub-category a div,
+      .left-nav .category {
+        color: rgb(255, 255, 255) !important;
+        text-decoration: none !important;
+      }
+
+      .left-nav .sub-category a:hover div {
+        color: rgb(255, 255, 255) !important;
+        text-decoration: none !important;
+      }
+
+      .left-nav .sub-category a {
+        text-decoration: none !important;
+      }
+
+      .sub-category {
+        margin-left: 20px;
+        display: none;
+      }
+
+      .logout-button {
+        background-color: #005f73;
+        color: #d3d3d3;
+        border: none;
+        padding: 10px;
+        width: 100%;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .logout-button:hover {
+        background-color: #007bff;
+      }
+
+      .main-content {
+        margin-left: 18%;
+        padding: 70px 0px 0px 0px;
+        transition: margin-left 0.3s;
+        font-family: "Ancizar Serif ";
+      }
+
+      footer {
+        background-color: #808080;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 30px;
+        width: 100%;
+        font-family: "Open Sans";
+      }
+
+      .left-nav a {
+        color: inherit !important;
+        text-decoration: none !important;
+      }
+
+      .left-nav a:hover {
+        color: inherit !important;
+        text-decoration: none !important;
+      }
+
+      .profile-icon {
+        cursor: pointer;
+        color: white;
+        font-size: 1.7em;
+      }
+
+      /* Added table border styles */
+      .table {
+        border: 1px solid #dee2e6;
+      }
+
+      .table th,
+      .table td {
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+      }
+
+      .table thead th {
+        border-bottom-width: 2px;
+      }
+
+      .staff-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .action-buttons .btn {
+        margin: 0 2px;
+      }
+
+      .loading {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 9999;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading...
+    </div>
+
+    <nav class="navbar">
+      <div class="dashboard">
+        <i class="fas fa-bars menu-icon" id="menuIcon"></i>
+        <span style="margin-left: 10px; font-size: 20px">Dashboard</span>
+      </div>
+
+      <div class="icons">
+        <div class="profile-dropdown">
+          <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+          <div
+            class="profile-menu"
+            id="profileMenu"
+            style="font-family: Open Sans"
+          >
+            <!-- <a href="">Profile</a> -->
+            <a href="/Admin/Login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="left-nav" id="leftNav">
+      <div class="category" id="catalog">
+        Inventory<i class="fas fa-chevron-down" id="catalogToggle"></i>
+      </div>
+      <div class="sub-category" id="catalogSub">
+        <a href="Products.html"><div>Products</div></a>
+        <!-- <a href="eight.html"><div>Categories</div></a> -->
+        <a href="Coupon.html"><div>Coupons</div></a>
+      </div>
+      <div class="category" id="customers">
+        Customers <i class="fas fa-chevron-down" id="customersToggle"></i>
+      </div>
+      <div class="sub-category" id="customersSub">
+        <a href="CustomerDetails.html"><div>Customer Details</div></a>
+      </div>
+      <a href="Orders.html"><div class="category">Orders</div></a>
+      <div class="category" id="onlineStore">
+        Online Store <i class="fas fa-chevron-down" id="onlineStoreToggle"></i>
+      </div>
+      <div class="sub-category" id="onlineStoreSub" style="display: none">
+    <a href="https://jewelry-frontend-six.vercel.app/"><div>View Store</div></a>        
+    <a href="StoreCustomization.html"><div>Store Customization</div></a>
+        <!-- <a href="thirteen.html"><div>Store Settings</div></a> -->
+      </div>
+      <a href="OurStaff.html"><div class="category">Our Staff</div></a>
+      <a href="Settings.html"
+        ><div class="category" id="settings">Settings</div></a
+      >
+      <button
+        class="logout-button"
+        onclick="window.location.href='Login.html'"
+      >
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+
+    <div class="main-content">
+      <h3
+        class="mb-4"
+        style="font-size: 21px; font-weight: 350; font-family: roboto"
+      >
+        <b>OurStaff</b>
+      </h3>
+    </div>
+
+    <div
+      class="filter-container"
+      style="
+        margin-left: 270px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        margin-right: 40px;
+        border: 1px solid grey;
+      "
+    >
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              id="searchInput"
+              placeholder="Search name/email/phone"
+            />
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              onclick="filterTable()"
+            >
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="roleFilter">
+            <option selected disabled>Staff Role</option>
+            <option>Admin</option>
+            <option>Cashier</option>
+            <option>Accountant</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button
+            class="btn btn-primary w-100"
+            data-bs-toggle="modal"
+            data-bs-target="#addStaffModal"
+          >
+            <i class="fas fa-plus"></i> Add Staff
+          </button>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-success w-100" onclick="filterTable()">
+            <i class="fas fa-filter"></i> Filter
+          </button>
+        </div>
+
+        <div class="col-md-1">
+          <button
+            class="btn btn-outline-secondary w-100 btn-sm"
+            style="
+              padding-top: 2px;
+              padding-bottom: 2px;
+              font-size: 13px;
+              height: 35px;
+              width: 90px;
+            "
+            onclick="resetTable()"
+          >
+            <i class="fas fa-undo"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Staff Table -->
+    <div
+      class="table-responsive"
+      style="margin-left: 270px; margin-right: 40px"
+    >
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>Staff ID</th>
+            <th>Staff Image</th>
+            <th>Staff Name</th>
+            <th>Email Address</th>
+            <th>Contact</th>
+            <th>Joining Date</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="staffTableBody">
+          <!-- Staff data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div
+      class="modal fade"
+      id="addStaffModal"
+      tabindex="-1"
+      aria-labelledby="addStaffModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addStaffModalLabel">Add New Staff</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="staffForm">
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="staffImage" class="form-label">Staff Image</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="staffImage"
+                    accept="image/*"
+                  />
+                  <small class="text-muted"
+                    >Image will be displayed in the table</small
+                  >
+                </div>
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="staffName" class="form-label"
+                        >Staff Name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="staffName"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="staffEmail" class="form-label"
+                        >Email Address</label
+                      >
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="staffEmail"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Status</label><br />
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="staffStatus"
+                          id="activeStatus"
+                          value="Active"
+                          required
+                        />
+                        <label class="form-check-label" for="activeStatus"
+                          >Active</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="staffStatus"
+                          id="inactiveStatus"
+                          value="Inactive"
+                        />
+                        <label class="form-check-label" for="inactiveStatus"
+                          >Inactive</label
+                        >
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label for="staffContact" class="form-label"
+                        >Contact Number</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="staffContact"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="joiningDate" class="form-label"
+                    >Joining Date</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="joiningDate"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="staffRole" class="form-label">Staff Role</label>
+                  <select class="form-select" id="staffRole" required>
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Cashier">Cashier</option>
+                    <option value="Accountant">Accountant</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="saveStaffBtn">
+              Add Staff
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer
+      style="
+        background-color: #f0f0f0;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Open Sans;
+      "
+    >
+      <!-- <img src="Img/logo.jpg" alt="Kunash Media Logo" style="height: 40px;  width:60px ;margin-right: 15px;"> -->
+      <p style="color: black; font-weight: 400; margin: 0; font-size: medium">
+        © 2025 Kunash Media | Developed by Pranjal Prasad
+      </p>
+    </footer>
+
+<script>
+      const API_BASE_URL = "http://localhost:8080/api/staff";
+      let allStaffData = [];
+
+      const dummyStaffData = [
+        {
+          staffId: "STF001",
+          staffName: "John Smith",
+          emailAddress: "john.smith@company.com",
+          contact: "+91-9876543210",
+          joiningDate: "2023-01-15",
+          role: "Admin",
+          status: "ACTIVE",
+          staffImageUrl: "https://via.placeholder.com/40/4CAF50/FFFFFF?text=JS",
+        },
+       
+      ];
+
+      function showLoading() {
+        document.getElementById("loadingIndicator").style.display = "block";
+      }
+
+      function hideLoading() {
+        document.getElementById("loadingIndicator").style.display = "none";
+      }
+
+      async function fetchAllStaff() {
+  try {
+    showLoading();
+    
+    // Call the actual GET API
+    const response = await fetch(`${API_BASE_URL}`, {
+      method: "GET",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch staff data");
+    }
+
+    const staffData = await response.json();
+    allStaffData = staffData;
+    populateStaffTable(staffData);
+    
+  } catch (error) {
+    console.error("Error fetching staff:", error);
+    // Fallback to dummy data if API fails
+    allStaffData = dummyStaffData;
+    populateStaffTable(dummyStaffData);
+    alert("Error loading staff data. Showing dummy data.");
+  } finally {
+    hideLoading();
+  }
+}
+      function populateStaffTable(staffData) {
+        const tbody = document.getElementById("staffTableBody");
+        tbody.innerHTML = "";
+
+        staffData.forEach((staff) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                <td><input type="checkbox"></td>
+                <td>${staff.staffId}</td>
+                <td><img src="${
+                  staff.staffImageUrl || "https://via.placeholder.com/40"
+                }" class="staff-image" alt="Staff Image" style="width: 40px; height: 40px; border-radius: 50%;"></td>
+                <td>${staff.staffName}</td>
+                <td>${staff.emailAddress}</td>
+                <td>${staff.contact}</td>
+                <td>${staff.joiningDate}</td>
+                <td>${staff.role}</td>
+                <td><span class="badge ${
+                  staff.status === "ACTIVE" ? "bg-success" : "bg-secondary"
+                }">${staff.status}</span></td>
+                <td class="action-buttons">
+                    <button class="btn btn-sm btn-warning" onclick="enableRowEditing(this.closest('tr'), '${
+                      staff.staffId
+                    }')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteStaff('${
+                      staff.staffId
+                    }')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+          tbody.appendChild(row);
+        });
+      }
+
+      async function createStaff(formData) {
+        try {
+            showLoading();
+            const response = await fetch(`${API_BASE_URL}/create`, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to create staff member");
+            }
+
+            const result = await response.json();
+            alert("Staff member created successfully!");
+            await fetchAllStaff();
+            return result;
+        } catch (error) {
+            console.error("Error creating staff:", error);
+            alert(`Error: ${error.message}`);
+            throw error;
+        } finally {
+            hideLoading();
+        }
+      }
+
+      async function updateStaff(staffId, formData) {
+        try {
+            showLoading();
+            const response = await fetch(`${API_BASE_URL}/${staffId}`, {
+                method: "PUT",
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to update staff member");
+            }
+
+            const result = await response.json();
+            alert("Staff member updated successfully!");
+            await fetchAllStaff();
+            return result;
+        } catch (error) {
+            console.error("Error updating staff:", error);
+            alert(`Error: ${error.message}`);
+            throw error;
+        } finally {
+            hideLoading();
+        }
+      }
+
+      async function deleteStaff(staffId) {
+        if (!confirm("Are you sure you want to delete this staff member?")) {
+          return;
+        }
+
+        try {
+          showLoading();
+          const response = await fetch(`${API_BASE_URL}/${staffId}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to delete staff member");
+          }
+
+          alert("Staff member deleted successfully!");
+          await fetchAllStaff();
+                } catch (error) {
+          console.error("Error deleting staff:", error);
+          alert("Error deleting staff member. Please try again.");
+        } finally {
+          hideLoading();
+        }
+      }
+
+      function enableRowEditing(row, staffId) {
+        const cells = row.cells;
+
+        for (let i = 1; i < cells.length - 1; i++) {
+          if (i === 2 || i === 1) continue;
+
+          const cell = cells[i];
+          const cellContent = cell.innerHTML;
+
+          if (i === 8) {
+            const isActive = cellContent.includes("bg-success");
+            cell.innerHTML = `
+                    <select class="form-select form-select-sm">
+                        <option value="ACTIVE" ${
+                          isActive ? "selected" : ""
+                        }>ACTIVE</option>
+                        <option value="INACTIVE" ${
+                          !isActive ? "selected" : ""
+                        }>INACTIVE</option>
+                    </select>
+                `;
+          }
+          else if (i === 7) {
+            const currentRole = cell.textContent.trim();
+            cell.innerHTML = `
+                    <select class="form-select form-select-sm">
+                        <option value="Admin" ${
+                          currentRole === "Admin" ? "selected" : ""
+                        }>Admin</option>
+                        <option value="Cashier" ${
+                          currentRole === "Cashier" ? "selected" : ""
+                        }>Cashier</option>
+                        <option value="Accountant" ${
+                          currentRole === "Accountant" ? "selected" : ""
+                        }>Accountant</option>
+                    </select>
+                `;
+          }
+          else {
+            cell.contentEditable = true;
+            cell.style.backgroundColor = "#fff8e1";
+          }
+        }
+
+        const actionCell = cells[cells.length - 1];
+        actionCell.innerHTML = `
+            <button class="btn btn-sm btn-success" onclick="saveRowChanges(this.closest('tr'), '${staffId}')">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button class="btn btn-sm btn-secondary" onclick="cancelRowEditing(this.closest('tr'))">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        `;
+      }
+
+      async function saveRowChanges(row, staffId) {
+        const cells = row.cells;
+
+        const formData = new FormData();
+        const staffData = {};
+
+        staffData.staffName = cells[3].textContent.trim();
+        staffData.emailAddress = cells[4].textContent.trim();
+        staffData.contact = cells[5].textContent.trim();
+        staffData.joiningDate = cells[6].textContent.trim();
+        staffData.role = cells[7].querySelector("select")
+          ? cells[7].querySelector("select").value
+          : cells[7].textContent.trim();
+        staffData.status = cells[8].querySelector("select")
+          ? cells[8].querySelector("select").value
+          : "ACTIVE";
+
+        const staffBlob = new Blob([JSON.stringify(staffData)], {
+            type: 'application/json'
+        });
+        formData.append("staff", staffBlob);
+
+        try {
+          await updateStaff(staffId, formData);
+        } catch (error) {
+          cancelRowEditing(row);
+        }
+      }
+
+      function cancelRowEditing(row) {
+        fetchAllStaff();
+      }
+
+      function filterTable() {
+        const searchInput = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const roleFilter = document.getElementById("roleFilter").value;
+
+        let filteredData = allStaffData.filter((staff) => {
+          const matchesSearch =
+            searchInput === "" ||
+            staff.staffName.toLowerCase().includes(searchInput) ||
+            staff.emailAddress.toLowerCase().includes(searchInput) ||
+            staff.contact.toLowerCase().includes(searchInput);
+
+          const matchesRole =
+            roleFilter === "Staff Role" ||
+            roleFilter === null ||
+            staff.role === roleFilter;
+
+          return matchesSearch && matchesRole;
+        });
+
+        populateStaffTable(filteredData);
+      }
+
+      function resetTable() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("roleFilter").selectedIndex = 0;
+        populateStaffTable(allStaffData);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchAllStaff();
+
+        document
+          .getElementById("menuIcon")
+          .addEventListener("click", function () {
+            const leftNav = document.getElementById("leftNav");
+            leftNav.style.display =
+              leftNav.style.display === "block" ? "none" : "block";
+          });
+
+        document
+          .getElementById("profileIcon")
+          .addEventListener("click", function (e) {
+            e.stopPropagation();
+            const menu = document.getElementById("profileMenu");
+            menu.style.display =
+              menu.style.display === "block" ? "none" : "block";
+          });
+
+        document.addEventListener("click", function () {
+          document.getElementById("profileMenu").style.display = "none";
+        });
+
+        document
+          .getElementById("onlineStoreToggle")
+          .addEventListener("click", function () {
+            const sub = document.getElementById("onlineStoreSub");
+            sub.style.display =
+              sub.style.display === "block" ? "none" : "block";
+          });
+
+        document
+          .getElementById("catalogToggle")
+          .addEventListener("click", function () {
+            const sub = document.getElementById("catalogSub");
+            sub.style.display =
+              sub.style.display === "block" ? "none" : "block";
+          });
+
+        document
+          .getElementById("customersToggle")
+          .addEventListener("click", function () {
+            const sub = document.getElementById("customersSub");
+            sub.style.display =
+              sub.style.display === "block" ? "none" : "block";
+          });
+
+document.getElementById("saveStaffBtn").addEventListener("click", async function () {
+    const staffName = document.getElementById("staffName").value;
+    const staffEmail = document.getElementById("staffEmail").value;
+    const staffContact = document.getElementById("staffContact").value;
+    const joiningDate = document.getElementById("joiningDate").value;
+    const staffRole = document.getElementById("staffRole").value;
+    const staffStatus = document.querySelector('input[name="staffStatus"]:checked')?.value;
+    const staffImageInput = document.getElementById("staffImage");
+
+    if (!staffName || !staffEmail || !staffContact || !joiningDate || !staffRole || !staffStatus) {
+        alert("Please fill in all required fields");
+        return;
+    }
+
+    const formData = new FormData();
+
+    const staffData = {
+        staffName: staffName,
+        emailAddress: staffEmail,
+        contact: staffContact,
+        joiningDate: joiningDate,
+        role: staffRole,
+        status: staffStatus.toUpperCase(),
+    };
+
+    formData.append("staff", JSON.stringify(staffData));
+
+    if (staffImageInput.files && staffImageInput.files[0]) {
+        formData.append("staffImage", staffImageInput.files[0]);
+    }
+
+    try {
+        await createStaff(formData);
+
+        document.getElementById("staffForm").reset();
+
+        const modal = bootstrap.Modal.getInstance(
+            document.getElementById("addStaffModal")
+        );
+        modal.hide();
+    } catch (error) {
+    }
+});
+
+async function saveRowChanges(row, staffId) {
+    const cells = row.cells;
+
+    const formData = new FormData();
+    const staffData = {};
+
+    staffData.staffName = cells[3].textContent.trim();
+    staffData.emailAddress = cells[4].textContent.trim();
+    staffData.contact = cells[5].textContent.trim();
+    staffData.joiningDate = cells[6].textContent.trim();
+    staffData.role = cells[7].querySelector("select")
+        ? cells[7].querySelector("select").value
+        : cells[7].textContent.trim();
+    staffData.status = cells[8].querySelector("select")
+        ? cells[8].querySelector("select").value
+        : "ACTIVE";
+
+    formData.append("staff", JSON.stringify(staffData));
+
+    try {
+        await updateStaff(staffId, formData);
+    } catch (error) {
+        cancelRowEditing(row);
+    }
+}
+      });
+    </script> 
+     </body>
+</html>

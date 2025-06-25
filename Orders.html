@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: #2d2d30;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            font-family: "roboto";
+        }
+        
+        .navbar .dashboard {
+            color: white;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar .menu-icon {
+            color: white;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        
+        .navbar .icons {
+            display: flex;
+            align-items: center;
+        }
+        
+        .icons>i {
+            margin-right: 20px;
+        }
+        
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            width: 150px;
+            z-index: 1000;
+        }
+        
+        .profile-menu a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+        
+        .profile-menu a:hover {
+            background: #f1f1f1;
+        }
+        
+        .profile-icon {
+            cursor: pointer;
+            color: white;
+            font-size: 1.2em;
+        }
+        
+        .left-nav {
+            width: 220px;
+            background-color: #2d2d30;
+            position: fixed;
+            top: 50px;
+            left: 0;
+            height: calc(100vh - 50px);
+            display: block;
+            padding: 10px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 999;
+            font-family: "Open Sans";
+        }
+        
+        .left-nav .category {
+            cursor: pointer;
+            margin: 15px 0;
+            color: rgb(255, 255, 255);
+        }
+
+
+        .left-nav .sub-category a div,
+        .left-nav .category {
+        color: rgb(255, 255, 255) !important;
+        text-decoration: none !important;
+        }
+
+        .left-nav .sub-category a:hover div {
+            color: rgb(255, 255, 255) !important;
+            text-decoration: none !important;
+        }
+
+        .left-nav .sub-category a {
+            text-decoration: none !important;
+        }
+        
+        .sub-category {
+            margin-left: 20px;
+            display: none;
+        }
+        
+        .logout-button {
+            background-color: #005f73;
+            color: #d3d3d3;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .logout-button:hover {
+            background-color: #007bff;
+        }
+        
+        .main-content {
+            margin-left: 18%;
+            padding: 70px 0px 0px 0px;
+            transition: margin-left 0.3s;
+            font-family: "Ancizar Serif ";
+
+        }
+        
+     
+        
+        footer {
+            background-color: #808080;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+            width: 100%;
+            font-family: "Open Sans";
+        }
+        
+
+        .left-nav a {
+        color: inherit !important;
+        text-decoration: none !important;
+        }
+
+        .left-nav a:hover {
+        color: inherit !important;
+        text-decoration: none !important;
+        }
+
+        .profile-icon {
+        cursor: pointer;
+        color: white;
+        font-size: 1.7em; 
+        }
+
+        .filter-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-group {
+    flex-wrap: nowrap;
+}
+
+.form-control, .form-select, .btn {
+    height: 38px; /* Consistent height */
+}
+
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="dashboard">
+            <i class="fas fa-bars menu-icon" id="menuIcon"></i>
+            <span style="margin-left: 10px; font-size: 20px;">Dashboard</span>
+        </div>
+        <div class="icons">
+            <div class="profile-dropdown">
+                <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+                <div class="profile-menu" id="profileMenu" style=" font-family: Open Sans;">
+                    <!-- <a href="">Profile</a> -->
+                    <a href="Login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="left-nav" id="leftNav">
+        <div class="category" id="catalog">Inventory<i class="fas fa-chevron-down" id="catalogToggle"></i></div>
+        <div class="sub-category" id="catalogSub">
+           <a href="Products.html"><div>Products</div></a> 
+            <!-- <a href="category.html"><div>Categories</div></a> -->
+            <a href="Coupon.html"><div>Coupons</div></a>
+        </div>
+        <div class="category" id="customers">Customers <i class="fas fa-chevron-down" id="customersToggle"></i></div>
+        <div class="sub-category" id="customersSub">
+           <a href="CustomerDetails.html"><div>Customer Details</div></a> 
+        </div>
+       <a href=""><div class="category" >Orders</div></a> 
+        <div class="category" id="onlineStore">Online Store <i class="fas fa-chevron-down" id="onlineStoreToggle"></i></div>
+        <div class="sub-category" id="onlineStoreSub" style="display: none;">
+        <a href="https://jewelry-frontend-six.vercel.app/"><div>View Store</div></a>            
+        </div>
+        <a href="OurStaff.html"><div class="category">Our Staff</div></a>
+       <a href="Settings.html"><div class="category" id="settings">Settings</div></a> 
+        <button class="logout-button" onclick="window.location.href='login.html'"> <i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <div class="main-content">
+        <h3 class="mb-4" style="font-size:21px; font-weight: 350; font-family:roboto; margin-top: 20px;"><b>Orders</b></h3>
+    </div>
+
+<div class="filter-container" style="margin-left: 270px; margin-top: 20px; margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; margin-right: 40px; border:1px solid grey">
+    <div class="row g-2 align-items-center">
+        <!-- Search and filters -->
+        <div class="col-md-3">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search by customer name" id="searchInput">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <select class="form-select" id="statusSelect">
+                <option value="" selected>Status</option>
+                <option value="created">Created</option>
+                <option value="invoiced">Invoiced</option>
+                <option value="shipped">Shipped</option>
+                <option value="paid">Paid</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="delivered">Delivered</option>
+                <option value="processing">Processing</option>
+            </select>
+        </div>
+   
+        <div class="col-md-2">
+            <select class="form-select" id="methodSelect">
+                <option value="" selected>Method</option>
+                <option value="card">Card</option>
+                <option value="cash">Cash</option>
+                <option value="credit">Credit</option>
+            </select>
+        </div>
+        
+        <!-- Date range and action buttons -->
+        <div class="col-md-3">
+            <div class="input-group">
+                <input type="date" class="form-control" id="startDate" style="margin-left: 5px; padding-left: 25px;">
+                <input type="date" class="form-control" id="endDate" style="margin-left: 20px; padding-left: 25px;">
+            </div>
+        </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" id="downloadBtn">
+                <i class="fas fa-download"></i> Download
+            </button>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-success" id="filterBtn">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <button class="btn btn-outline-secondary" id="resetBtn">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="table-responsive" style="margin-left: 270px; margin-right: 40px;">
+    <table class="table table-striped table-hover" id="ordersTable">
+        <thead class="table-light">
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Estimated Delivery</th>
+                <th>Order Date</th>
+                <th>Actions</th>
+                <th>Invoice</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>ORD-0001</td>
+                <td>John Smith</td>
+                <td>Wireless Headphones</td>
+                <td>2</td>
+                <td>₹59.99</td>
+                <td>₹119.98</td>
+                <td>Card</td> 
+                <td><span class="badge bg-warning">Pending</span></td>
+                <td>2023-12-15</td>
+                <td>2023-12-01</td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-info"><i class="fas fa-print"></i></button>
+                    <button class="btn btn-sm btn-secondary"><i class="fas fa-search"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>ORD-0002</td>
+                <td>Sarah Johnson</td>
+                <td>Smart Watch</td>
+                <td>1</td>
+                <td>₹199.99</td>
+                <td>₹199.99</td>
+                 <td>Card</td> 
+                <td><span class="badge bg-success">Delivered</span></td>
+                <td>2023-12-05</td>
+                <td>2023-11-28</td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-info"><i class="fas fa-print"></i></button>
+                    <button class="btn btn-sm btn-secondary"><i class="fas fa-search"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>ORD-0003</td>
+                <td>Michael Brown</td>
+                <td>Bluetooth Speaker</td>
+                <td>3</td>
+                <td>₹34.99</td>
+                <td>₹104.97</td>
+                 <td>Card</td> 
+                <td><span class="badge bg-primary">Shipped</span></td>
+                <td>2023-12-20</td>
+                <td>2023-12-10</td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-info"><i class="fas fa-print"></i></button>
+                    <button class="btn btn-sm btn-secondary"><i class="fas fa-search"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>ORD-0004</td>
+                <td>Emily Davis</td>
+                <td>Laptop Backpack</td>
+                <td>1</td>
+                <td>₹49.99</td>
+                <td>₹49.99</td>
+                 <td>Cash</td> 
+                <td><span class="badge bg-info">Processing</span></td>
+                <td>2023-12-18</td>
+                <td>2023-12-12</td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-info"><i class="fas fa-print"></i></button>
+                    <button class="btn btn-sm btn-secondary"><i class="fas fa-search"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>ORD-0005</td>
+                <td>David Wilson</td>
+                <td>Wireless Charger</td>
+                <td>2</td>
+                <td>₹24.99</td>
+                <td>₹49.98</td>
+                 <td>Credit</td> 
+                <td><span class="badge bg-secondary">Completed</span></td>
+                <td>2023-12-10</td>
+                <td>2023-12-01</td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary" onclick="enableRowEditing(this.closest('tr'))"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+                </td>
+                <td class="action-buttons" style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-info" onclick="showInvoice(this)"><i class="fas fa-print"></i></button>
+                    <button class="btn btn-sm btn-secondary" onclick="showInvoice(this)"><i class="fas fa-search"></i></button>
+                </td>
+               </tr>
+        </tbody>
+    </table>
+</div>
+
+
+    <footer style="background-color: #f0f0f0; height: 60px; display: flex; align-items: center; justify-content: center;font-family: Open Sans;">
+        <!-- <img src="Img/logo.jpg" alt="Kunash Media Logo" style="height: 40px;  width:60px ;margin-right: 15px;"> -->
+        <p style="color: black; font-weight: 400; margin: 0; font-size: medium;">© 2025 Kunash Media | Developed by Pranjal Prasad</p>
+    </footer>
+
+
+<!-- Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invoice Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="invoiceContent">
+                    <!-- Invoice content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printInvoice()">Print Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Preview Modal -->
+<div class="modal fade" id="printPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Print Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="printPreviewContent">
+                    <!-- Print preview content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to filter elements
+    const searchInput = document.getElementById('searchInput');
+    const statusSelect = document.getElementById('statusSelect');
+    const methodSelect = document.getElementById('methodSelect');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const filterBtn = document.getElementById('filterBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const table = document.getElementById('ordersTable');
+    const tbody = table.querySelector('tbody');
+
+    // Store original table state for reset functionality
+    const originalTableHTML = tbody.innerHTML;
+
+    // Filter function
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const statusValue = statusSelect.value.toLowerCase();
+        const methodValue = methodSelect.value.toLowerCase();
+        const startDateValue = startDate.value;
+        const endDateValue = endDate.value;
+
+        console.log('Applying filters:', {
+            search: searchTerm,
+            status: statusValue,
+            method: methodValue,
+            startDate: startDateValue,
+            endDate: endDateValue
+        });
+
+        // Get all table rows
+        const rows = tbody.querySelectorAll('tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const customerName = row.cells[2].textContent.toLowerCase().trim();
+            const productName = row.cells[3].textContent.toLowerCase().trim();
+            const method = row.cells[7].textContent.toLowerCase().trim();
+            const statusBadge = row.cells[8].querySelector('.badge');
+            const status = statusBadge ? statusBadge.textContent.toLowerCase().trim() : '';
+            const orderDate = row.cells[10].textContent.trim();
+
+            // Check search filter (customer name or product name)
+            const matchesSearch = !searchTerm || 
+                                customerName.includes(searchTerm) || 
+                                productName.includes(searchTerm);
+
+            // Check status filter
+            const matchesStatus = !statusValue || status.includes(statusValue);
+            
+            // Check method filter
+            const matchesMethod = !methodValue || method.includes(methodValue);
+            
+            // Check date range filter
+            const matchesDateRange = (!startDateValue || orderDate >= startDateValue) && 
+                                   (!endDateValue || orderDate <= endDateValue);
+
+            // Show/hide row based on all filters
+            const shouldShow = matchesSearch && matchesStatus && matchesMethod && matchesDateRange;
+            
+            if (shouldShow) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        console.log(`Showing ${visibleCount} out of ${rows.length} rows`);
+    }
+
+    // Reset function
+    function resetFilters() {
+        // Clear all filter inputs
+        searchInput.value = '';
+        statusSelect.value = '';
+        methodSelect.value = '';
+        startDate.value = '';
+        endDate.value = '';
+
+        // Show all rows
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.style.display = '';
+        });
+
+        console.log('Filters reset - showing all rows');
+    }
+
+    // Download function
+    function downloadFilteredData() {
+        const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => 
+            row.style.display !== 'none'
+        );
+        
+        if (visibleRows.length === 0) {
+            alert('No data to download!');
+            return;
+        }
+        
+        // Create CSV content
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add headers (excluding checkbox and action columns)
+        const headers = [
+            "Order ID", "Customer Name", "Product Name", "Quantity", "Price", 
+            "Total Amount", "Method", "Status", "Estimated Delivery", "Order Date"
+        ];
+        csvContent += headers.join(",") + "\r\n";
+        
+        // Add visible rows data
+        visibleRows.forEach(row => {
+            const rowData = [
+                row.cells[1].textContent.trim(), // Order ID
+                row.cells[2].textContent.trim(), // Customer Name
+                row.cells[3].textContent.trim(), // Product Name
+                row.cells[4].textContent.trim(), // Quantity
+                row.cells[5].textContent.trim(), // Price
+                row.cells[6].textContent.trim(), // Total Amount
+                row.cells[7].textContent.trim(), // Method
+                row.cells[8].textContent.trim(), // Status
+                row.cells[9].textContent.trim(), // Estimated Delivery
+                row.cells[10].textContent.trim() // Order Date
+            ];
+            csvContent += rowData.map(field => `"${field}"`).join(",") + "\r\n";
+        });
+        
+        // Create and trigger download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `filtered_orders_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log(`Downloaded ${visibleRows.length} filtered records`);
+    }
+
+    // Event listeners for filter functionality
+    filterBtn.addEventListener('click', applyFilters);
+    resetBtn.addEventListener('click', resetFilters);
+    downloadBtn.addEventListener('click', downloadFilteredData);
+
+    // Optional: Apply filters as user types/selects (real-time filtering)
+    searchInput.addEventListener('input', applyFilters);
+    statusSelect.addEventListener('change', applyFilters);
+    methodSelect.addEventListener('change', applyFilters);
+    startDate.addEventListener('change', applyFilters);
+    endDate.addEventListener('change', applyFilters);
+
+    // Left nav toggle
+    document.getElementById('menuIcon').addEventListener('click', function() {
+        const leftNav = document.getElementById('leftNav');
+        leftNav.style.display = leftNav.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Profile menu toggle
+    document.getElementById('profileIcon').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('profileMenu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close profile menu when clicking outside
+    document.addEventListener('click', function() {
+        document.getElementById('profileMenu').style.display = 'none';
+    });
+
+    // Submenu toggles
+    document.getElementById('onlineStoreToggle').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const sub = document.getElementById('onlineStoreSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+        this.classList.toggle('fa-chevron-down');
+        this.classList.toggle('fa-chevron-up');
+    });
+    
+    document.getElementById('catalogToggle').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const sub = document.getElementById('catalogSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+        this.classList.toggle('fa-chevron-down');
+        this.classList.toggle('fa-chevron-up');
+    });
+
+    document.getElementById('customersToggle').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const sub = document.getElementById('customersSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+        this.classList.toggle('fa-chevron-down');
+        this.classList.toggle('fa-chevron-up');
+    });
+
+    // Select all checkbox functionality
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // Set up event listeners for edit and delete buttons
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        if (btn.innerHTML.includes('fa-edit')) {
+            btn.onclick = function() {
+                enableRowEditing(this.closest('tr'));
+            };
+        }
+    });
+
+    document.querySelectorAll('.btn-danger').forEach(btn => {
+        if (btn.innerHTML.includes('fa-trash')) {
+            btn.onclick = function() {
+                deleteRow(this);
+            };
+        }
+    });
+
+    // Set up invoice buttons
+    document.querySelectorAll('.btn-info, .btn-secondary').forEach(btn => {
+        if (btn.closest('.action-buttons') && btn.closest('td').cellIndex === 12) {
+            btn.onclick = function() {
+                showInvoice(this);
+            };
+        }
+    });
+});
+
+// Row editing functions
+function enableRowEditing(row) {
+    const cells = row.cells;
+    // Store original values before editing
+    row.originalValues = [];
+    for (let i = 1; i < cells.length - 2; i++) {
+        row.originalValues.push(cells[i].innerHTML);
+        // Skip making Order ID (second column) editable
+        if (i !== 1) {
+            cells[i].contentEditable = true;
+            cells[i].style.backgroundColor = '#fff8e1';
+        }
+    }
+
+    // Change action buttons to Save/Cancel
+    const actionCell = cells[cells.length - 2];
+    actionCell.innerHTML = `
+        <button class="btn btn-sm btn-success" onclick="saveRowChanges(this)"><i class="fas fa-check"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="cancelRowEditing(this)"><i class="fas fa-times"></i></button>
+    `;
+}
+
+function saveRowChanges(btn) {
+    const row = btn.closest('tr');
+    const cells = row.cells;
+
+    // Disable editing for all cells
+    for (let i = 1; i < cells.length - 2; i++) {
+        cells[i].contentEditable = false;
+        cells[i].style.backgroundColor = '';
+    }
+
+    // Update status badge if status was changed
+    const statusCell = cells[8];
+    const statusText = statusCell.textContent.trim();
+    const statusBadge = statusCell.querySelector('.badge');
+    if (statusBadge) {
+        if (statusText.toLowerCase().includes('pending')) {
+            statusBadge.className = 'badge bg-warning';
+        } else if (statusText.toLowerCase().includes('delivered')) {
+            statusBadge.className = 'badge bg-success';
+        } else if (statusText.toLowerCase().includes('shipped')) {
+            statusBadge.className = 'badge bg-primary';
+        } else if (statusText.toLowerCase().includes('processing')) {
+            statusBadge.className = 'badge bg-info';
+        } else if (statusText.toLowerCase().includes('completed')) {
+            statusBadge.className = 'badge bg-secondary';
+        }
+    }
+
+    // Restore edit/delete buttons
+    const actionCell = cells[cells.length - 2];
+    actionCell.innerHTML = `
+        <button class="btn btn-sm btn-primary" onclick="enableRowEditing(this.closest('tr'))"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+    `;
+
+    // Clear original values
+    delete row.originalValues;
+}
+
+function cancelRowEditing(btn) {
+    const row = btn.closest('tr');
+    const cells = row.cells;
+
+    // Restore original values if they exist
+    if (row.originalValues) {
+        for (let i = 1; i < cells.length - 2; i++) {
+            cells[i].innerHTML = row.originalValues[i - 1];
+            cells[i].contentEditable = false;
+            cells[i].style.backgroundColor = '';
+        }
+    } else {
+        // Just disable editing if no original values
+        for (let i = 1; i < cells.length - 2; i++) {
+            cells[i].contentEditable = false;
+            cells[i].style.backgroundColor = '';
+        }
+    }
+
+    // Restore edit/delete buttons
+    const actionCell = cells[cells.length - 2];
+    actionCell.innerHTML = `
+        <button class="btn btn-sm btn-primary" onclick="enableRowEditing(this.closest('tr'))"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRow(this)"><i class="fas fa-trash"></i></button>
+    `;
+
+    // Clear original values
+    delete row.originalValues;
+}
+
+function deleteRow(btn) {
+    if (confirm('Are you sure you want to delete this order?')) {
+        btn.closest('tr').remove();
+        console.log('Row deleted');
+    }
+}
+
+// Function to show invoice when search icon is clicked
+function showInvoice(btn) {
+    const row = btn.closest('tr');
+    const orderId = row.cells[1].textContent;
+    const customerName = row.cells[2].textContent;
+    const productName = row.cells[3].textContent;
+    const quantity = row.cells[4].textContent;
+    const price = row.cells[5].textContent;
+    const totalAmount = row.cells[6].textContent;
+    const method = row.cells[7].textContent;
+    const status = row.cells[8].querySelector('.badge').textContent.trim();
+    const estimatedDelivery = row.cells[9].textContent;
+    const orderDate = row.cells[10].textContent;
+    
+    // Generate invoice HTML
+    const invoiceHTML = `
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 24px; margin: 0; color: #333;">INVOICE</h1>
+                    <p style="margin: 5px 0; color: #666;">ORDER ID: <span style="color: #28a745;">${orderId}</span></p>
+                    <p style="margin: 5px 0; color: #666;">STATUS: <span style="color: #28a745;">${status}</span></p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 5px 0; color: #666;">DATE</p>
+                    <p style="margin: 5px 0; font-weight: bold;">${orderDate}</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div>
+                    <h3 style="font-size: 16px; margin: 0 0 10px 0; color: #333;">KACHA BAZAR</h3>
+                    <p style="margin: 5px 0; color: #666;">59 Station Rd, Prinz Bridge, United Kingdom</p>
+                    <p style="margin: 5px 0; color: #666;">018757854</p>
+                    <p style="margin: 5px 0; color: #666;">kachakazat@gmail.com</p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="font-size: 16px; margin: 0 0 10px 0; color: #333;">INVOICE TO</h3>
+                    <p style="margin: 5px 0; font-weight: bold;">${customerName}</p>
+                    <p style="margin: 5px 0; color: #666;">customer@gmail.com</p>
+                    <p style="margin: 5px 0; color: #666;">1234567890</p>
+                    <p style="margin: 5px 0; color: #666;">Industrial Area, Sector 82</p>
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">#</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">PRODUCT TITLE</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">QUANTITY</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">ITEM PRICE</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">1</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${productName}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${quantity}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${price}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${totalAmount}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="display: flex; justify-content: flex-end;">
+                <div style="width: 300px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>PAYMENT METHOD</span>
+                        <span>${method}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>SHIPPING COST</span>
+                        <span>₹20.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>DISCOUNT</span>
+                        <span>₹0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;">
+                        <span>TOTAL AMOUNT</span>
+                        <span>${totalAmount}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>ESTIMATED DELIVERY</span>
+                        <span>${estimatedDelivery}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 50px; text-align: center; color: #666; font-size: 14px;">
+                <p>Thank you for your business!</p>
+            </div>
+        </div>
+    `;
+    
+    // Insert into modal and show
+    document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+    const invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+    invoiceModal.show();
+}
+
+// Function to show print preview
+function printInvoice() {
+    // Close the invoice modal
+    const invoiceModal = bootstrap.Modal.getInstance(document.getElementById('invoiceModal'));
+    invoiceModal.hide();
+    
+    // Create print preview content
+    const printPreviewHTML = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; margin-bottom: 30px;">Kunash Media Ltd</h1>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p>59 Station Rd, Prinz Bridge, United Kingdom</p>
+                <p>018757854 | kachakazat@gmail.com</p>
+            </div>
+            
+            ${document.getElementById('invoiceContent').innerHTML}
+            
+            <div style="margin-top: 50px; text-align: center;">
+                <p>Thank you for your order. Come Again...!</p>
+            </div>
+            
+            <div style="margin-top: 50px; font-size: 12px; color: #666;">
+                <p>Date: ${new Date().toLocaleDateString()}</p>
+                <p>VAT number: £7589</p>
+            </div>
+        </div>
+    `;
+    
+    // Insert into print preview modal and show
+    document.getElementById('printPreviewContent').innerHTML = printPreviewHTML;
+    const printPreviewModal = new bootstrap.Modal(document.getElementById('printPreviewModal'));
+    printPreviewModal.show();
+}
+
+</script>
+   
+</body>
+</html>
