@@ -476,5 +476,6 @@
         } catch (error) {
             console.error('Error exporting to CSV:', error);
             alert('Error exporting to CSV. Please try again.');
+
         }
     }
