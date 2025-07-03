@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+
     // Toggle left navigation
     document.getElementById('menuIcon').addEventListener('click', function() {
         const leftNav = document.getElementById('leftNav');
@@ -36,12 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
         sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
     });
 
-    // Load FAQs from backend on page load
+    // Load FAQs, Shipping, and Cancellation data from backend on page load
     loadFAQsFromBackend();
+    loadShippingFromBackend();
+    loadCancellationFromBackend();
 });
 
 // Backend API configuration
 const API_BASE_URL = 'http://localhost:8080/api/faq'; // Update this with your actual backend URL
+const SHIPPING_API_BASE_URL = 'http://localhost:8080/api/shipping'; // Shipping API base URL
+const CANCELLATION_API_BASE_URL = 'http://localhost:8080/api/cancellation'; // Cancellation API base URL
 
 // Utility function to show loading state
 function showLoading(containerId) {
@@ -66,9 +71,9 @@ function showError(message, containerId) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'alert alert-danger alert-dismissible fade show';
     errorDiv.innerHTML = `
-        <strong>Error!</strong> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+       <strong>Error!</strong> ${message}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+   `;
     container.insertBefore(errorDiv, container.firstChild);
 
     // Auto-remove after 5 seconds
@@ -85,9 +90,9 @@ function showSuccess(message, containerId) {
     const successDiv = document.createElement('div');
     successDiv.className = 'alert alert-success alert-dismissible fade show';
     successDiv.innerHTML = `
-        <strong>Success!</strong> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+       <strong>Success!</strong> ${message}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+   `;
     container.insertBefore(successDiv, container.firstChild);
 
     // Auto-remove after 3 seconds
@@ -97,6 +102,10 @@ function showSuccess(message, containerId) {
         }
     }, 3000);
 }
+
+// =============================
+// FAQ BACKEND FUNCTIONS (EXISTING)
+// =============================
 
 // Function to load FAQs from backend
 async function loadFAQsFromBackend() {
@@ -115,14 +124,14 @@ async function loadFAQsFromBackend() {
             populateFAQsFromBackend(faqs);
         } else {
             // If no FAQs found, use dummy data
-            populateDummyData();
+            populateDummyFAQData();
         }
 
     } catch (error) {
         hideLoading('faqContainer');
         console.error('Error loading FAQs:', error);
         showError('Failed to load FAQs from server. Loading dummy data instead.', 'faqContainer');
-        populateDummyData();
+        populateDummyFAQData();
     }
 }
 
@@ -138,24 +147,24 @@ function populateFAQsFromBackend(faqs) {
         newItem.className = 'faq-item mb-4';
         newItem.setAttribute('data-faq-id', faq.id);
         newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Question ${index + 1}</label>
-                <input type="text" class="form-control faq-question" placeholder="Enter question" value="${faq.question || ''}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Answer ${index + 1}</label>
-                <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer">${faq.answer || ''}</textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Category</label>
-                <input type="text" class="form-control faq-category" placeholder="Enter category" value="${faq.category || ''}">
-            </div>
-            <div class="mb-3">
-                <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateFAQ(${faq.id})">Update</button>
-                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteFAQ(${faq.id})">Delete</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFAQStatus(${faq.id})">${faq.active ? 'Deactivate' : 'Activate'}</button>
-            </div>
-        `;
+           <div class="mb-3">
+               <label class="form-label">Question ${index + 1}</label>
+               <input type="text" class="form-control faq-question" placeholder="Enter question" value="${faq.question || ''}">
+           </div>
+           <div class="mb-3">
+               <label class="form-label">Answer ${index + 1}</label>
+               <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer">${faq.answer || ''}</textarea>
+           </div>
+           <div class="mb-3">
+               <label class="form-label">Category</label>
+               <input type="text" class="form-control faq-category" placeholder="Enter category" value="${faq.category || ''}">
+           </div>
+           <div class="mb-3">
+               <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateFAQ(${faq.id})">Update</button>
+               <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteFAQ(${faq.id})">Delete</button>
+               <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFAQStatus(${faq.id})">${faq.active ? 'Deactivate' : 'Activate'}</button>
+           </div>
+       `;
 
         faqContainer.appendChild(newItem);
     });
@@ -395,6 +404,553 @@ async function loadAllCategories() {
     }
 }
 
+// =============================
+// SHIPPING BACKEND FUNCTIONS (EXISTING)
+// =============================
+
+// Function to load shipping data from backend
+async function loadShippingFromBackend() {
+    try {
+        showLoading('shippingContainer');
+
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/get-All-Shippings`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const shippings = await response.json();
+        hideLoading('shippingContainer');
+
+        if (shippings && shippings.length > 0) {
+            populateShippingFromBackend(shippings);
+        } else {
+            // If no shipping data found, use dummy data
+            populateDummyShippingData();
+        }
+
+    } catch (error) {
+        hideLoading('shippingContainer');
+        console.error('Error loading shipping data:', error);
+        showError('Failed to load shipping data from server. Loading dummy data instead.', 'shippingContainer');
+        populateDummyShippingData();
+    }
+}
+
+// Function to populate shipping data from backend
+function populateShippingFromBackend(shippings) {
+    const shippingContainer = document.getElementById('shippingContainer');
+
+    // Clear existing shipping items
+    shippingContainer.innerHTML = '';
+
+    shippings.forEach((shipping, index) => {
+        const newItem = document.createElement('div');
+        newItem.className = 'shipping-item mb-4';
+        newItem.setAttribute('data-shipping-id', shipping.id);
+        newItem.innerHTML = `
+           <div class="mb-3">
+               <label class="form-label">Heading</label>
+               <input type="text" class="form-control shipping-title" placeholder="Enter heading" value="${shipping.title || ''}">
+           </div>
+           <div class="mb-3">
+               <label class="form-label">Content</label>
+               <textarea class="form-control shipping-description" rows="3" placeholder="Enter content">${shipping.description || ''}</textarea>
+           </div>
+           <div class="mb-3">
+               <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateShipping(${shipping.id})">Update</button>
+               <button type="button" class="btn btn-danger btn-sm" onclick="deleteShipping(${shipping.id})">Delete</button>
+           </div>
+       `;
+
+        shippingContainer.appendChild(newItem);
+    });
+}
+
+// Function to save all shipping data to backend
+async function saveAllShippingToBackend() {
+    const shippingContainer = document.getElementById('shippingContainer');
+    const shippingItems = shippingContainer.querySelectorAll('.shipping-item');
+
+    try {
+        showLoading('shippingContainer');
+
+        for (let item of shippingItems) {
+            const shippingId = item.getAttribute('data-shipping-id');
+            const title = item.querySelector('.shipping-title').value;
+            const description = item.querySelector('.shipping-description').value;
+
+            const shippingData = {
+                title: title,
+                description: description
+            };
+
+            if (shippingId && shippingId !== 'null') {
+                // Update existing shipping
+                await updateShippingInBackend(shippingId, shippingData);
+            } else {
+                // Create new shipping
+                const newShipping = await createShippingInBackend(shippingData);
+                if (newShipping) {
+                    item.setAttribute('data-shipping-id', newShipping.id);
+                }
+            }
+        }
+
+        hideLoading('shippingContainer');
+        showSuccess('All shipping data saved successfully!', 'shippingContainer');
+
+    } catch (error) {
+        hideLoading('shippingContainer');
+        console.error('Error saving shipping data:', error);
+        showError('Failed to save shipping data. Please try again.', 'shippingContainer');
+    }
+}
+
+// Function to create shipping in backend
+async function createShippingInBackend(shippingData) {
+    try {
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/create-shipping`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(shippingData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error creating shipping:', error);
+        throw error;
+    }
+}
+
+// Function to update shipping in backend
+async function updateShippingInBackend(id, shippingData) {
+    try {
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(shippingData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating shipping:', error);
+        throw error;
+    }
+}
+
+// Function to update single shipping
+async function updateShipping(id) {
+    const shippingItem = document.querySelector(`[data-shipping-id="${id}"]`);
+    if (!shippingItem) return;
+
+    const title = shippingItem.querySelector('.shipping-title').value;
+    const description = shippingItem.querySelector('.shipping-description').value;
+
+    const shippingData = {
+        title: title,
+        description: description
+    };
+
+    try {
+        await updateShippingInBackend(id, shippingData);
+        showSuccess('Shipping data updated successfully!', 'shippingContainer');
+    } catch (error) {
+        showError('Failed to update shipping data. Please try again.', 'shippingContainer');
+    }
+}
+
+// Function to delete shipping
+async function deleteShipping(id) {
+    if (!confirm('Are you sure you want to delete this shipping item?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Remove from DOM
+        const shippingItem = document.querySelector(`[data-shipping-id="${id}"]`);
+        if (shippingItem) {
+            shippingItem.remove();
+        }
+
+        showSuccess('Shipping item deleted successfully!', 'shippingContainer');
+
+    } catch (error) {
+        console.error('Error deleting shipping:', error);
+        showError('Failed to delete shipping item. Please try again.', 'shippingContainer');
+    }
+}
+
+// Function to search shipping by title
+async function searchShippingByTitle(title) {
+    if (!title.trim()) {
+        loadShippingFromBackend();
+        return;
+    }
+
+    try {
+        showLoading('shippingContainer');
+
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/search/title?title=${encodeURIComponent(title)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const shippings = await response.json();
+        hideLoading('shippingContainer');
+
+        populateShippingFromBackend(shippings);
+
+    } catch (error) {
+        hideLoading('shippingContainer');
+        console.error('Error searching shipping by title:', error);
+        showError('Failed to search shipping data. Please try again.', 'shippingContainer');
+    }
+}
+
+// Function to search shipping by description
+async function searchShippingByDescription(description) {
+    if (!description.trim()) {
+        loadShippingFromBackend();
+        return;
+    }
+
+    try {
+        showLoading('shippingContainer');
+
+        const response = await fetch(`${SHIPPING_API_BASE_URL}/search/description?description=${encodeURIComponent(description)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const shippings = await response.json();
+        hideLoading('shippingContainer');
+
+        populateShippingFromBackend(shippings);
+
+    } catch (error) {
+        hideLoading('shippingContainer');
+        console.error('Error searching shipping by description:', error);
+        showError('Failed to search shipping data. Please try again.', 'shippingContainer');
+    }
+}
+
+// Function to save single shipping item
+async function saveSingleShipping(button) {
+    const shippingItem = button.closest('.shipping-item');
+    const title = shippingItem.querySelector('.shipping-title').value;
+    const description = shippingItem.querySelector('.shipping-description').value;
+
+    if (!title.trim() || !description.trim()) {
+        showError('Please fill in both title and description fields.', 'shippingContainer');
+        return;
+    }
+
+    const shippingData = {
+        title: title,
+        description: description
+    };
+
+    try {
+        const newShipping = await createShippingInBackend(shippingData);
+        if (newShipping) {
+            shippingItem.setAttribute('data-shipping-id', newShipping.id);
+
+            // Update buttons
+            const buttonContainer = shippingItem.querySelector('.mb-3:last-child');
+            buttonContainer.innerHTML = `
+                <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateShipping(${newShipping.id})">Update</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteShipping(${newShipping.id})">Delete</button>
+            `;
+
+            showSuccess('Shipping item saved successfully!', 'shippingContainer');
+        }
+    } catch (error) {
+        showError('Failed to save shipping item. Please try again.', 'shippingContainer');
+    }
+}
+
+// =============================
+// CANCELLATION BACKEND FUNCTIONS (NEW)
+// =============================
+
+// Function to load cancellation data from backend
+async function loadCancellationFromBackend() {
+    try {
+        showLoading('cancellationContainer');
+
+        const response = await fetch(`${CANCELLATION_API_BASE_URL}/get-All-cancellation`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const cancellations = await response.json();
+        hideLoading('cancellationContainer');
+
+        if (cancellations && cancellations.length > 0) {
+            populateCancellationFromBackend(cancellations);
+        } else {
+            // If no cancellation data found, use dummy data
+            populateDummyCancellationData();
+        }
+
+    } catch (error) {
+        hideLoading('cancellationContainer');
+        console.error('Error loading cancellation data:', error);
+        showError('Failed to load cancellation data from server. Loading dummy data instead.', 'cancellationContainer');
+        populateDummyCancellationData();
+    }
+}
+
+// Function to populate cancellation data from backend
+function populateCancellationFromBackend(cancellations) {
+    const cancellationContainer = document.getElementById('cancellationContainer');
+
+    // Clear existing cancellation items
+    cancellationContainer.innerHTML = '';
+
+    cancellations.forEach((cancellation, index) => {
+        const newItem = document.createElement('div');
+        newItem.className = 'cancellation-item mb-4';
+        newItem.setAttribute('data-cancellation-id', cancellation.id);
+        newItem.innerHTML = `
+           <div class="mb-3">
+               <label class="form-label">Heading</label>
+               <input type="text" class="form-control cancellation-title" placeholder="Enter heading" value="${cancellation.title || ''}">
+           </div>
+           <div class="mb-3">
+               <label class="form-label">Content</label>
+               <textarea class="form-control cancellation-description" rows="3" placeholder="Enter content">${cancellation.description || ''}</textarea>
+           </div>
+           <div class="mb-3">
+               <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateCancellation(${cancellation.id})">Update</button>
+               <button type="button" class="btn btn-danger btn-sm" onclick="deleteCancellation(${cancellation.id})">Delete</button>
+           </div>
+       `;
+
+        cancellationContainer.appendChild(newItem);
+    });
+}
+
+// Function to save all cancellation data to backend
+async function saveAllCancellationToBackend() {
+    const cancellationContainer = document.getElementById('cancellationContainer');
+    const cancellationItems = cancellationContainer.querySelectorAll('.cancellation-item');
+
+    try {
+        showLoading('cancellationContainer');
+
+        for (let item of cancellationItems) {
+            const cancellationId = item.getAttribute('data-cancellation-id');
+            const title = item.querySelector('.cancellation-title').value;
+            const description = item.querySelector('.cancellation-description').value;
+
+            const cancellationData = {
+                title: title,
+                description: description
+            };
+
+            if (cancellationId && cancellationId !== 'null') {
+                // Update existing cancellation
+                await updateCancellationInBackend(cancellationId, cancellationData);
+            } else {
+                // Create new cancellation
+                const newCancellation = await createCancellationInBackend(cancellationData);
+                if (newCancellation) {
+                    item.setAttribute('data-cancellation-id', newCancellation.id);
+                }
+            }
+        }
+
+        hideLoading('cancellationContainer');
+        showSuccess('All cancellation data saved successfully!', 'cancellationContainer');
+
+    } catch (error) {
+        hideLoading('cancellationContainer');
+        console.error('Error saving cancellation data:', error);
+        showError('Failed to save cancellation data. Please try again.', 'cancellationContainer');
+    }
+}
+
+// Function to create cancellation in backend
+async function createCancellationInBackend(cancellationData) {
+    try {
+        const response = await fetch(`${CANCELLATION_API_BASE_URL}/create-cancellation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cancellationData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error creating cancellation:', error);
+        throw error;
+    }
+}
+
+// Function to update cancellation in backend
+async function updateCancellationInBackend(id, cancellationData) {
+    try {
+        const response = await fetch(`${CANCELLATION_API_BASE_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cancellationData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating cancellation:', error);
+        throw error;
+    }
+}
+
+// Function to update single cancellation
+async function updateCancellation(id) {
+    const cancellationItem = document.querySelector(`[data-cancellation-id="${id}"]`);
+    if (!cancellationItem) return;
+
+    const title = cancellationItem.querySelector('.cancellation-title').value;
+    const description = cancellationItem.querySelector('.cancellation-description').value;
+
+    const cancellationData = {
+        title: title,
+        description: description
+    };
+
+    try {
+        await updateCancellationInBackend(id, cancellationData);
+        showSuccess('Cancellation data updated successfully!', 'cancellationContainer');
+    } catch (error) {
+        showError('Failed to update cancellation data. Please try again.', 'cancellationContainer');
+    }
+}
+
+// Function to delete cancellation
+async function deleteCancellation(id) {
+    if (!confirm('Are you sure you want to delete this cancellation item?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${CANCELLATION_API_BASE_URL}/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Remove from DOM
+        const cancellationItem = document.querySelector(`[data-cancellation-id="${id}"]`);
+        if (cancellationItem) {
+            cancellationItem.remove();
+        }
+
+        showSuccess('Cancellation item deleted successfully!', 'cancellationContainer');
+
+    } catch (error) {
+        console.error('Error deleting cancellation:', error);
+        showError('Failed to delete cancellation item. Please try again.', 'cancellationContainer');
+    }
+}
+
+// Function to search cancellation by title
+async function searchCancellationByTitle(title) {
+    if (!title.trim()) {
+        loadCancellationFromBackend();
+        return;
+    }
+
+    try {
+        showLoading('cancellationContainer');
+
+        const response = await fetch(`${CANCELLATION_API_BASE_URL}/search?title=${encodeURIComponent(title)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const cancellations = await response.json();
+        hideLoading('cancellationContainer');
+
+        populateCancellationFromBackend(cancellations);
+
+    } catch (error) {
+        hideLoading('cancellationContainer');
+        console.error('Error searching cancellation by title:', error);
+        showError('Failed to search cancellation data. Please try again.', 'cancellationContainer');
+    }
+}
+
+// Function to save single cancellation item
+async function saveSingleCancellation(button) {
+    const cancellationItem = button.closest('.cancellation-item');
+    const title = cancellationItem.querySelector('.cancellation-title').value;
+    const description = cancellationItem.querySelector('.cancellation-description').value;
+
+    if (!title.trim() || !description.trim()) {
+        showError('Please fill in both title and description fields.', 'cancellationContainer');
+        return;
+    }
+
+    const cancellationData = {
+        title: title,
+        description: description
+    };
+
+    try {
+        const newCancellation = await createCancellationInBackend(cancellationData);
+        if (newCancellation) {
+            cancellationItem.setAttribute('data-cancellation-id', newCancellation.id);
+
+            // Update buttons
+            const buttonContainer = cancellationItem.querySelector('.mb-3:last-child');
+            buttonContainer.innerHTML = `
+                <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateCancellation(${newCancellation.id})">Update</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteCancellation(${newCancellation.id})">Delete</button>
+            `;
+
+            showSuccess('Cancellation item saved successfully!', 'cancellationContainer');
+        }
+    } catch (error) {
+        showError('Failed to save cancellation item. Please try again.', 'cancellationContainer');
+    }
+}
+
+// =============================
+// OVERLAY FUNCTIONS (EXISTING)
+// =============================
+
 // Function to open overlay
 function openOverlay(id) {
     document.getElementById(id).style.display = 'flex';
@@ -405,6 +961,10 @@ function closeOverlay(id) {
     document.getElementById(id).style.display = 'none';
 }
 
+// =============================
+// ADD ITEM FUNCTIONS (EXISTING + ENHANCED)
+// =============================
+
 // Function to add FAQ item (enhanced with backend connectivity)
 function addFaqItem() {
     const container = document.getElementById('faqContainer');
@@ -414,23 +974,23 @@ function addFaqItem() {
     newItem.className = 'faq-item mb-4';
     newItem.setAttribute('data-faq-id', 'null'); // Mark as new item
     newItem.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label">Question ${count}</label>
-            <input type="text" class="form-control faq-question" placeholder="Enter question">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Answer ${count}</label>
-            <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Category</label>
-            <input type="text" class="form-control faq-category" placeholder="Enter category" value="General">
-        </div>
-        <div class="mb-3">
-            <button type="button" class="btn btn-success btn-sm me-2" onclick="saveSingleFAQ(this)">Save</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFAQItem(this)">Remove</button>
-        </div>
-    `;
+       <div class="mb-3">
+           <label class="form-label">Question ${count}</label>
+           <input type="text" class="form-control faq-question" placeholder="Enter question">
+       </div>
+       <div class="mb-3">
+           <label class="form-label">Answer ${count}</label>
+           <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer"></textarea>
+       </div>
+       <div class="mb-3">
+           <label class="form-label">Category</label>
+           <input type="text" class="form-control faq-category" placeholder="Enter category" value="General">
+       </div>
+       <div class="mb-3">
+           <button type="button" class="btn btn-success btn-sm me-2" onclick="saveSingleFAQ(this)">Save</button>
+           <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFAQItem(this)">Remove</button>
+       </div>
+   `;
 
     container.appendChild(newItem);
 }
@@ -480,25 +1040,36 @@ function removeFAQItem(button) {
     faqItem.remove();
 }
 
-// Function to add Shipping item
+// Function to add Shipping item (enhanced with backend connectivity)
 function addShippingItem() {
     const container = document.getElementById('shippingContainer');
     const count = container.children.length + 1;
 
     const newItem = document.createElement('div');
     newItem.className = 'shipping-item mb-4';
+    newItem.setAttribute('data-shipping-id', 'null'); // Mark as new item
     newItem.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label">Heading</label>
-            <input type="text" class="form-control" placeholder="Enter heading">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Content</label>
-            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-        </div>
-    `;
+       <div class="mb-3">
+           <label class="form-label">Heading</label>
+           <input type="text" class="form-control shipping-title" placeholder="Enter heading">
+       </div>
+       <div class="mb-3">
+           <label class="form-label">Content</label>
+           <textarea class="form-control shipping-description" rows="3" placeholder="Enter content"></textarea>
+       </div>
+       <div class="mb-3">
+           <button type="button" class="btn btn-success btn-sm me-2" onclick="saveSingleShipping(this)">Save</button>
+           <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeShippingItem(this)">Remove</button>
+       </div>
+   `;
 
     container.appendChild(newItem);
+}
+
+// Function to remove shipping item from DOM (for unsaved items)
+function removeShippingItem(button) {
+    const shippingItem = button.closest('.shipping-item');
+    shippingItem.remove();
 }
 
 // Function to add Cancellation item
@@ -508,162 +1079,48 @@ function addCancellationItem() {
 
     const newItem = document.createElement('div');
     newItem.className = 'cancellation-item mb-4';
+    newItem.setAttribute('data-cancellation-id', 'null'); // Mark as new item
     newItem.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label">Heading</label>
-            <input type="text" class="form-control" placeholder="Enter heading">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Content</label>
-            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-        </div>
-    `;
+       <div class="mb-3">
+           <label class="form-label">Heading</label>
+           <input type="text" class="form-control cancellation-title" placeholder="Enter heading">
+       </div>
+       <div class="mb-3">
+           <label class="form-label">Content</label>
+           <textarea class="form-control cancellation-description" rows="3" placeholder="Enter content"></textarea>
+       </div>
+       <div class="mb-3">
+           <button type="button" class="btn btn-success btn-sm me-2" onclick="saveSingleCancellation(this)">Save</button>
+           <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCancellationItem(this)">Remove</button>
+       </div>
+   `;
 
     container.appendChild(newItem);
 }
 
-// Function to add Disclaimer Q&A item
-function addDisclaimerQnaItem() {
-    const container = document.getElementById('disclaimerQnaContainer');
-    const count = container.children.length + 1;
-
-    const newItem = document.createElement('div');
-    newItem.className = 'disclaimer-qna-item mb-4';
-    newItem.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label">Question</label>
-            <input type="text" class="form-control" placeholder="Enter question">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Answer</label>
-            <textarea class="form-control" rows="3" placeholder="Enter answer"></textarea>
-        </div>
-    `;
-
-    container.appendChild(newItem);
+// Function to remove cancellation item from DOM (for unsaved items)
+function removeCancellationItem(button) {
+    const cancellationItem = button.closest('.cancellation-item');
+    cancellationItem.remove();
 }
 
-// Function to add Disclaimer Text item
-function addDisclaimerTextItem() {
-    const container = document.getElementById('disclaimerTextContainer');
-    const count = container.children.length + 1;
+// Disclaimer Text Section
+const disclaimerTextContainer = document.getElementById('disclaimerTextContainer');
+const disclaimerTextItems = [{
+    heading: "Limitation of Liability",
+    content: "Our company shall not be liable for any special or consequential damages that result from the use of, or the inability to use, the materials on this site."
+}, {
+    heading: "Product Use",
+    content: "Products are intended for personal use only. Commercial use without prior written consent may violate our terms of service."
+}];
 
-    const newItem = document.createElement('div');
-    newItem.className = 'disclaimer-text-item mb-4';
-    newItem.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label">Text Heading</label>
-            <input type="text" class="form-control" placeholder="Enter heading">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Text Content</label>
-            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-        </div>
-    `;
+disclaimerTextItems.forEach((item, index) => {
+    if (index > 0) addDisclaimerTextItem();
+    const inputs = disclaimerTextContainer.children[index].getElementsByTagName('input');
+    const textareas = disclaimerTextContainer.children[index].getElementsByTagName('textarea');
+    inputs[0].value = item.heading;
+    textareas[0].value = item.content;
+});
 
-    container.appendChild(newItem);
-}
-
-// Function to populate all fields with dummy data (preserved original functionality)
-function populateDummyData() {
-    // FAQ Section
-    const faqContainer = document.getElementById('faqContainer');
-    const faqItems = [{
-        question: "How do I track my order?",
-        answer: "You can track your order by logging into your account and checking the order status page. Tracking information is typically available within 24 hours of shipment."
-    }, {
-        question: "What is your return policy?",
-        answer: "We accept returns within 30 days of purchase. Items must be unused and in their original packaging. Please contact our customer service to initiate a return."
-    }];
-
-    // Clear existing items
-    faqContainer.innerHTML = '';
-
-    faqItems.forEach((item, index) => {
-        if (index > 0) addFaqItem();
-        else {
-            // Add first item
-            addFaqItem();
-        }
-        const lastItem = faqContainer.children[faqContainer.children.length - 1];
-        const inputs = lastItem.getElementsByTagName('input');
-        const textareas = lastItem.getElementsByTagName('textarea');
-        inputs[0].value = item.question;
-        textareas[0].value = item.answer;
-    });
-
-    // Shipping Details Section
-    const shippingContainer = document.getElementById('shippingContainer');
-    const shippingItems = [{
-        heading: "Domestic Shipping",
-        content: "We offer free shipping on all domestic orders over $50. Standard delivery takes 3-5 business days. Express shipping options are available at checkout."
-    }, {
-        heading: "International Shipping",
-        content: "International orders typically take 7-14 business days to arrive. Additional customs fees may apply depending on your country's import regulations."
-    }];
-
-    shippingItems.forEach((item, index) => {
-        if (index > 0) addShippingItem();
-        const inputs = shippingContainer.children[index].getElementsByTagName('input');
-        const textareas = shippingContainer.children[index].getElementsByTagName('textarea');
-        inputs[0].value = item.heading;
-        textareas[0].value = item.content;
-    });
-
-    // Cancellation Policy Section
-    const cancellationContainer = document.getElementById('cancellationContainer');
-    const cancellationItems = [{
-        heading: "Order Cancellation",
-        content: "You can cancel your order within 24 hours of placing it. After that, cancellations may not be possible if the order has already been processed for shipping."
-    }, {
-        heading: "Refund Process",
-        content: "Refunds for cancelled orders are processed within 5-7 business days. The refund will be issued to your original payment method."
-    }];
-
-    cancellationItems.forEach((item, index) => {
-        if (index > 0) addCancellationItem();
-        const inputs = cancellationContainer.children[index].getElementsByTagName('input');
-        const textareas = cancellationContainer.children[index].getElementsByTagName('textarea');
-        inputs[0].value = item.heading;
-        textareas[0].value = item.content;
-    });
-
-    // Disclaimer Q&A Section
-    const disclaimerQnaContainer = document.getElementById('disclaimerQnaContainer');
-    const disclaimerQnaItems = [{
-        question: "Are product descriptions accurate?",
-        answer: "We strive to provide accurate product descriptions, but there may be slight variations in color or size due to monitor settings or manufacturing differences."
-    }, {
-        question: "Is pricing subject to change?",
-        answer: "Yes, we reserve the right to adjust prices at any time. However, once you place an order, the price is locked in for that transaction."
-    }];
-
-    disclaimerQnaItems.forEach((item, index) => {
-        if (index > 0) addDisclaimerQnaItem();
-        const inputs = disclaimerQnaContainer.children[index].getElementsByTagName('input');
-        const textareas = disclaimerQnaContainer.children[index].getElementsByTagName('textarea');
-        inputs[0].value = item.question;
-        textareas[0].value = item.answer;
-    });
-
-    // Disclaimer Text Section
-    const disclaimerTextContainer = document.getElementById('disclaimerTextContainer');
-    const disclaimerTextItems = [{
-        heading: "Limitation of Liability",
-        content: "Our company shall not be liable for any special or consequential damages that result from the use of, or the inability to use, the materials on this site."
-    }, {
-        heading: "Product Use",
-        content: "Products are intended for personal use only. Commercial use without prior written consent may violate our terms of service."
-    }];
-
-    disclaimerTextItems.forEach((item, index) => {
-        if (index > 0) addDisclaimerTextItem();
-        const inputs = disclaimerTextContainer.children[index].getElementsByTagName('input');
-        const textareas = disclaimerTextContainer.children[index].getElementsByTagName('textarea');
-        inputs[0].value = item.heading;
-        textareas[0].value = item.content;
-    });
-
-}
 // Call the function when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', populateDummyData);

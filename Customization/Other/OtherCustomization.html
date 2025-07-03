@@ -38,18 +38,19 @@
 
         <div class="icons">
             <div class="profile-dropdown">
-                <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
-                <div class="profile-menu" id="profileMenu" style=" font-family: Open Sans;">
-                    <a href="">Profile</a>
-                    <a href="Login.html">Logout</a>
+                <div class="dashboard">
+                    <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+                    <div class="profile-menu" id="profileMenu" style=" font-family: Open Sans;">
+                        <!-- <a href="">Profile</a> -->
+                        <a href="/Login/Login.html">Logout</a>
+                    </div>
                 </div>
             </div>
-        </div>
     </nav>
 
-    <div class=" left-nav " id="leftNav ">
-        <div class="category " id="catalog ">Inventory<i class="fas fa-chevron-down " id="catalogToggle "></i></div>
-        <div class="sub-category " id="catalogSub ">
+    <div class="left-nav" id="leftNav">
+        <div class="category" id="catalog">Inventory<i class="fas fa-chevron-down" id="catalogToggle"></i></div>
+        <div class="sub-category" id="catalogSub">
             <a href="/products/Products.html">
                 <div>Products</div>
             </a>
@@ -57,22 +58,22 @@
                 <div>Coupons</div>
             </a>
         </div>
-        <div class="category " id="customers ">Customers <i class="fas fa-chevron-down " id="customersToggle "></i></div>
-        <div class="sub-category " id="customersSub ">
+        <div class="category" id="customers">Customers <i class="fas fa-chevron-down" id="customersToggle"></i></div>
+        <div class="sub-category" id="customersSub">
             <a href="/CustomerDetails/CustomerDetails.html">
                 <div>Customer Details</div>
             </a>
         </div>
         <a href="/Order/Orders.html">
-            <div class="category ">Orders</div>
+            <div class="category">Orders</div>
         </a>
-        <div class="category " id="onlineStore ">Online Store <i class="fas fa-chevron-down " id="onlineStoreToggle "></i></div>
-        <div class="sub-category " id="onlineStoreSub " style="display: none; ">
+        <div class="category" id="onlineStore">Online Store <i class="fas fa-chevron-down" id="onlineStoreToggle"></i></div>
+        <div class="sub-category" id="onlineStoreSub" style="display: none;">
             <a href="https://jewelry-frontend-six.vercel.app/">
                 <div>View Store</div>
             </a>
-            <div class="category " id="storeCustomization ">Store Customization <i class="fas fa-chevron-down " id="storeCustomizationToggle "></i></div>
-            <div class="sub-category " id="storeCustomizationSub " style="display: none; ">
+            <div class="category" id="storeCustomization">Store Customization<i class="fas fa-chevron-down" id="storeCustomizationToggle"></i></div>
+            <div class="sub-category" id="storeCustomizationSub" style="display: none;">
                 <a href="/Customization/Banners/banner.html">
                     <div>Banner</div>
                 </a>
@@ -82,7 +83,7 @@
                 <a href="/Customization/checkout/Checkout-Customization.html">
                     <div>Checkout</div>
                 </a>
-                <a href="/Customization/contact/Contactus-Customization.html ">
+                <a href="/Customization/contact/Contactus-Customization.html">
                     <div>Contact</div>
                 </a>
                 <a href="/Customization/Other/OtherCustomization.html">
@@ -97,10 +98,10 @@
             </div>
         </div>
         <a href="/OurStaff/OurStaff.html">
-            <div class="category ">Our Staff</div>
+            <div class="category">Our Staff</div>
         </a>
-        <div class="category " id="settings ">Settings <i class="fas fa-chevron-down " id="settingsToggle "></i></div>
-        <div class="sub-category " id="settingsSub " style="display: none; ">
+        <div class="category" id="settings">Settings <i class="fas fa-chevron-down" id="settingsToggle"></i></div>
+        <div class="sub-category" id="settingsSub" style="display: none;">
             <!-- <a href="/Settings/Settings.html ">
                 <div>General Settings</div>
             </a> -->
@@ -108,7 +109,7 @@
                 <div>Admin Details</div>
             </a>
         </div>
-        <button class="logout-button " onclick="window.location.href='login.html'"> <i class="fas fa-sign-out-alt "></i> Logout</button>
+        <button class="logout-button" onclick="window.location.href='login.html'"> <i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
 
@@ -269,30 +270,7 @@
             </div>
         </div>
     </div>
-
     </div>
-    </div>
-    <div class="left-nav" id="leftNav">
-        <div class="category" id="catalog">Catalog <i class="fas fa-chevron-down" id="catalogToggle"></i></div>
-        <div class="sub-category" id="catalogSub">
-            <div>Products</div>
-            <div>Categories</div>
-            <div>Coupons</div>
-        </div>
-        <div class="category" id="customers">Customers <i class="fas fa-chevron-down" id="customersToggle"></i></div>
-        <div class="sub-category" id="customersSub">
-            <div>Customer Details</div>
-        </div>
-        <div class="category">Orders</div>
-        <div class="category" id="onlineStore">Online Store <i class="fas fa-chevron-down" id="onlineStoreToggle"></i></div>
-        <div class="sub-category" id="onlineStoreSub" style="display: none;">
-            <div>View Store</div>
-            <div>Store Customization</div>
-            <div>Store Settings</div>
-        </div>
-        <div class="category">Our Staff</div>
-        <div class="category" id="settings">Settings</div>
-        <button class="logout-button"> <i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
     <footer style="background-color: #f0f0f0; height: 60px; display: flex; align-items: center; justify-content: center;font-family: Open Sans;">
