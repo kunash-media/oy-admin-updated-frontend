@@ -83,7 +83,7 @@ body {
     top: 50px;
     left: 0;
     height: calc(100vh - 50px);
-    display: none;
+    display: block;
     padding: 10px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
@@ -132,7 +132,7 @@ body {
 }
 
 .main-content {
-    margin-left: 18%;
+    margin-left: 22%;
     padding: 70px 0px 0px 0px;
     transition: margin-left 0.3s;
     font-family: "Ancizar Serif ";

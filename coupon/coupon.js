@@ -1,12 +1,14 @@
-// Save coupons to localStorage
+// In-memory storage for coupons (replaces localStorage)
+let couponsStorage = [];
+
+// Save coupons to in-memory storage
 function saveCoupons(coupons) {
-    localStorage.setItem('coupons', JSON.stringify(coupons));
+    couponsStorage = [...coupons]; // Create a copy
 }
 
-// Load coupons from localStorage
+// Load coupons from in-memory storage
 function loadCoupons() {
-    const coupons = JSON.parse(localStorage.getItem('coupons')) || [];
-    return coupons;
+    return [...couponsStorage]; // Return a copy
 }
 
 // Generate random coupon code
@@ -56,6 +58,7 @@ document.getElementById('addCouponBtn').addEventListener('click', function() {
 
         coupons.push(newCoupon);
         saveCoupons(coupons);
+        renderCoupons(); // Refresh the table
 
         // Close modal and reset form
         const modal = bootstrap.Modal.getInstance(document.getElementById('addCouponModal'));
@@ -77,8 +80,66 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('couponCode').value = generateCouponCode();
 });
 
+// Navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
 
 
+    // Left nav toggle
+    document.getElementById('menuIcon').addEventListener('click', function() {
+        const leftNav = document.getElementById('leftNav');
+        leftNav.style.display = leftNav.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Profile menu toggle
+    document.getElementById('profileIcon').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('profileMenu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close profile menu when clicking outside
+    document.addEventListener('click', function() {
+        document.getElementById('profileMenu').style.display = 'none';
+    });
+
+    // Submenu toggles
+    document.getElementById('catalogToggle').addEventListener('click', function() {
+        const sub = document.getElementById('catalogSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.getElementById('customersToggle').addEventListener('click', function() {
+        const sub = document.getElementById('customersSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.getElementById('onlineStoreToggle').addEventListener('click', function() {
+        const sub = document.getElementById('onlineStoreSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Store Customization submenu toggle
+    document.getElementById('storeCustomizationToggle').addEventListener('click', function() {
+        const sub = document.getElementById('storeCustomizationSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Settings submenu toggle
+    document.getElementById('settingsToggle').addEventListener('click', function() {
+        const sub = document.getElementById('settingsSub');
+        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Initialize with sample data and render coupons
+    initializeSampleData();
+    renderCoupons();
+
+    // Initialize left nav display
+    const leftNav = document.getElementById('leftNav');
+    leftNav.style.display = 'block';
+});
+
+// Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize dropdown selections
     document.querySelectorAll('#discountTypeDropdown + .dropdown-menu .dropdown-item:first-child, #statusDropdown + .dropdown-menu .dropdown-item:first-child')
@@ -125,46 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 });
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize with sample data if localStorage is empty
-    initializeSampleData();
-    renderProducts();
-
-    // Left nav toggle
-    document.getElementById('menuIcon').addEventListener('click', function() {
-        const leftNav = document.getElementById('leftNav');
-        leftNav.style.display = leftNav.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Profile menu toggle
-    document.getElementById('profileIcon').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const menu = document.getElementById('profileMenu');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Close profile menu when clicking outside
-    document.addEventListener('click', function() {
-        document.getElementById('profileMenu').style.display = 'none';
-    });
-
-    // Submenu toggles
-    document.getElementById('onlineStoreToggle').addEventListener('click', function() {
-        const sub = document.getElementById('onlineStoreSub');
-        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-    });
-
-    document.getElementById('catalogToggle').addEventListener('click', function() {
-        const sub = document.getElementById('catalogSub');
-        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-    });
-
-    document.getElementById('customersToggle').addEventListener('click', function() {
-        const sub = document.getElementById('customersSub');
-        sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-    });
-
-});
 
 function deleteRow(btn) {
     const row = btn.closest('tr');
@@ -178,6 +199,7 @@ function deleteRow(btn) {
         const coupons = loadCoupons();
         const updatedCoupons = coupons.filter(c => c.id !== couponId);
         saveCoupons(updatedCoupons);
+        renderCoupons();
         deleteModal.hide();
     };
 }
@@ -204,314 +226,12 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', function(
         const coupons = loadCoupons();
         const updatedCoupons = coupons.filter(c => !couponIds.includes(c.id));
         saveCoupons(updatedCoupons);
+        renderCoupons();
         deleteModal.hide();
     };
 });
 
 // Function to render coupons in the table
-function renderCoupons() {
-    const coupons = loadCoupons();
-    const tableBody = document.getElementById('couponsTableBody');
-    tableBody.innerHTML = '';
-
-    if (coupons.length === 0) {
-        tableBody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center py-4">No coupons found. Click "Add Coupons" to create one.</td>
-                </tr>
-            `;
-        return;
-    }
-
-    coupons.forEach(coupon => {
-        // Determine status based on dates
-        const now = new Date();
-        const validFrom = new Date(coupon.validFrom);
-        const validUntil = new Date(coupon.validUntil);
-
-        let status = 'Active';
-        let statusClass = 'badge bg-success';
-
-        if (now < validFrom) {
-            status = 'Upcoming';
-            statusClass = 'badge bg-info';
-        } else if (now > validUntil) {
-            status = 'Expired';
-            statusClass = 'badge bg-danger';
-        }
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-                <td><input type="checkbox"></td>
-                <td>${coupon.code}</td>
-                <td>${coupon.name}</td>
-                <td>${coupon.description || '-'}</td>
-                <td>${coupon.discountType === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
-                <td><span class="${statusClass}">${status}</span></td>
-                <td>${formatDate(coupon.validFrom)}</td>
-                <td>${formatDate(coupon.validUntil)}</td>
-                <td>${coupon.discountValue}${coupon.discountType === 'percentage' ? '%' : '$'}</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                    <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteCoupon('${coupon.id}')">
-                    <i class="fas fa-trash"></i>
-                    </button>
-                    </td>
-            `;
-        tableBody.appendChild(row);
-    });
-}
-
-// Helper function to format date
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-}
-
-// Function to delete a coupon
-function deleteCoupon(id) {
-    if (confirm('Are you sure you want to delete this coupon?')) {
-        const coupons = loadCoupons();
-        const updatedCoupons = coupons.filter(c => c.id !== id);
-        saveCoupons(updatedCoupons);
-        renderCoupons();
-    }
-}
-
-// Initialize sample data if empty
-function initializeSampleData() {
-    if (loadCoupons().length === 0) {
-        const sampleCoupons = [{
-                id: '1',
-                banner: '',
-                name: 'Summer Sale',
-                code: 'SUMMER20',
-                validFrom: new Date(Date.now() - 86400000).toISOString(),
-                validUntil: new Date(Date.now() + 86400000 * 30).toISOString(),
-                discountType: 'percentage',
-                discountValue: '20',
-                description: 'Summer season discount',
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: '2',
-                banner: '',
-                name: 'New Year Special',
-                code: 'NEWYEAR50',
-                validFrom: new Date(Date.now() + 86400000 * 10).toISOString(),
-                validUntil: new Date(Date.now() + 86400000 * 40).toISOString(),
-                discountType: 'fixed',
-                discountValue: '50',
-                description: 'New Year special discount',
-                createdAt: new Date().toISOString()
-            }
-        ];
-        saveCoupons(sampleCoupons);
-    }
-}
-
-// Select all checkboxes
-document.getElementById('selectAll').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('#couponsTableBody input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-    });
-});
-
-// Update the DOMContentLoaded event to include renderCoupons
-document.addEventListener('DOMContentLoaded', function() {
-    initializeSampleData();
-    renderCoupons();
-
-    // ... (rest of your existing DOMContentLoaded code)
-});
-
-// Update the addCouponBtn event listener to render after adding
-document.getElementById('addCouponBtn').addEventListener('click', function() {
-    const bannerFile = document.getElementById('couponBanner').files[0];
-    if (!bannerFile) {
-        alert('Please upload a coupon banner image');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const coupons = loadCoupons();
-        const newCoupon = {
-            id: Date.now().toString(),
-            banner: e.target.result,
-            name: document.getElementById('couponName').value,
-            code: document.getElementById('couponCode').value,
-            validFrom: document.getElementById('validityStart').value,
-            validUntil: document.getElementById('validityEnd').value,
-            discountType: document.getElementById('discountType').value,
-            discountValue: document.getElementById('discountValue').value,
-            description: document.getElementById('couponDescription').value,
-            createdAt: new Date().toISOString()
-        };
-
-        coupons.push(newCoupon);
-        saveCoupons(coupons);
-
-        // Close modal, reset form, and refresh table
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addCouponModal'));
-        modal.hide();
-        document.getElementById('couponForm').reset();
-        document.getElementById('discountSuffix').textContent = '%';
-        renderCoupons();
-    };
-    reader.readAsDataURL(bannerFile);
-});
-
-function renderCoupons() {
-    const coupons = loadCoupons();
-    const tableBody = document.getElementById('couponsTableBody');
-    tableBody.innerHTML = '';
-
-    if (coupons.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="10" class="text-center py-4">No coupons found. Click "Add Coupons" to create one.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    coupons.forEach(coupon => {
-        // Determine status based on dates
-        const now = new Date();
-        const validFrom = new Date(coupon.validFrom);
-        const validUntil = new Date(coupon.validUntil);
-
-        let status = 'Active';
-        let statusClass = 'badge bg-success';
-
-        if (now < validFrom) {
-            status = 'Upcoming';
-            statusClass = 'badge bg-info';
-        } else if (now > validUntil) {
-            status = 'Expired';
-            statusClass = 'badge bg-danger';
-        }
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="checkbox"></td>
-            <td>${coupon.code}</td>
-            <td>${coupon.name}</td>
-            <td>${coupon.description || '-'}</td>
-            <td>${coupon.discountType === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
-            <td><span class="${statusClass}">${status}</span></td>
-            <td>${formatDate(coupon.validFrom)}</td>
-            <td>${formatDate(coupon.validUntil)}</td>
-            <td>${coupon.discountValue}${coupon.discountType === 'percentage' ? '%' : '$'}</td>
-            <td class="text-center">
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteCoupon('${coupon.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-// Add coupon to storage
-document.getElementById('addCouponBtn').addEventListener('click', function() {
-    const bannerFile = document.getElementById('couponBanner').files[0];
-    if (!bannerFile) {
-        alert('Please upload a coupon banner image');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const coupons = loadCoupons();
-        const newCoupon = {
-            id: Date.now().toString(),
-            banner: e.target.result,
-            name: document.getElementById('couponName').value,
-            code: document.getElementById('couponCode').value,
-            validFrom: document.getElementById('validityStart').value,
-            validUntil: document.getElementById('validityEnd').value,
-            discountType: document.getElementById('discountType').value,
-            discountValue: document.getElementById('discountValue').value,
-            description: document.getElementById('couponDescription').value,
-            createdAt: new Date().toISOString()
-        };
-
-        coupons.push(newCoupon);
-        saveCoupons(coupons);
-        renderCoupons(); // Add this line to refresh the table
-
-        // Close modal and reset form
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addCouponModal'));
-        modal.hide();
-        document.getElementById('couponForm').reset();
-        document.getElementById('discountSuffix').textContent = '%';
-    };
-    reader.readAsDataURL(bannerFile);
-});
-
-
-
-// Add this function to handle multiple row deletion
-function deleteSelectedRows() {
-    const checkboxes = document.querySelectorAll('#couponsTableBody input[type="checkbox"]:checked');
-    if (checkboxes.length === 0) {
-        alert('Please select at least one coupon to delete');
-        return;
-    }
-
-    // Show confirmation modal
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-    document.getElementById('deleteMessage').textContent =
-        `Are you sure you want to delete ${checkboxes.length} selected coupon(s)?`;
-    deleteModal.show();
-
-    // Set up confirm button handler
-    document.getElementById('confirmDeleteBtn').onclick = function() {
-        const coupons = loadCoupons();
-        const selectedIds = Array.from(checkboxes).map(checkbox => {
-            return checkbox.closest('tr').querySelector('td:nth-child(3)').textContent; // Get coupon code from 3rd column
-        });
-
-        // Filter out the selected coupons
-        const updatedCoupons = coupons.filter(coupon => !selectedIds.includes(coupon.code));
-        saveCoupons(updatedCoupons);
-
-        // Refresh the table
-        renderCoupons();
-        deleteModal.hide();
-
-        // Uncheck the "select all" checkbox
-        document.getElementById('selectAll').checked = false;
-    };
-}
-
-// Update the DOMContentLoaded event to add the click handler
-document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing DOMContentLoaded code ...
-
-    // Add click handler for delete selected button
-    document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedRows);
-
-    // Update the select all checkbox functionality
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('#couponsTableBody input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-    });
-});
-
-// Update the renderCoupons function to include proper checkbox handling
 function renderCoupons() {
     const coupons = loadCoupons();
     const tableBody = document.getElementById('couponsTableBody');
@@ -573,6 +293,97 @@ function renderCoupons() {
         tableBody.appendChild(row);
     });
 }
+
+// Helper function to format date
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+}
+
+// Function to delete a coupon
+function deleteCoupon(id) {
+    if (confirm('Are you sure you want to delete this coupon?')) {
+        const coupons = loadCoupons();
+        const updatedCoupons = coupons.filter(c => c.id !== id);
+        saveCoupons(updatedCoupons);
+        renderCoupons();
+    }
+}
+
+// Initialize sample data if empty
+function initializeSampleData() {
+    if (loadCoupons().length === 0) {
+        const sampleCoupons = [{
+                id: '1',
+                banner: '',
+                name: 'Summer Sale',
+                code: 'SUMMER20',
+                validFrom: new Date(Date.now() - 86400000).toISOString(),
+                validUntil: new Date(Date.now() + 86400000 * 30).toISOString(),
+                discountType: 'percentage',
+                discountValue: '20',
+                description: 'Summer season discount',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: '2',
+                banner: '',
+                name: 'New Year Special',
+                code: 'NEWYEAR50',
+                validFrom: new Date(Date.now() + 86400000 * 10).toISOString(),
+                validUntil: new Date(Date.now() + 86400000 * 40).toISOString(),
+                discountType: 'fixed',
+                discountValue: '50',
+                description: 'New Year special discount',
+                createdAt: new Date().toISOString()
+            }
+        ];
+        saveCoupons(sampleCoupons);
+    }
+}
+
+// Select all checkboxes
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('#couponsTableBody input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Add this function to handle multiple row deletion
+function deleteSelectedRows() {
+    const checkboxes = document.querySelectorAll('#couponsTableBody input[type="checkbox"]:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one coupon to delete');
+        return;
+    }
+
+    // Show confirmation modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    document.getElementById('deleteMessage').textContent =
+        `Are you sure you want to delete ${checkboxes.length} selected coupon(s)?`;
+    deleteModal.show();
+
+    // Set up confirm button handler
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        const coupons = loadCoupons();
+        const selectedIds = Array.from(checkboxes).map(checkbox => {
+            return checkbox.closest('tr').querySelector('td:nth-child(3)').textContent; // Get coupon code from 3rd column
+        });
+
+        // Filter out the selected coupons
+        const updatedCoupons = coupons.filter(coupon => !selectedIds.includes(coupon.code));
+        saveCoupons(updatedCoupons);
+
+        // Refresh the table
+        renderCoupons();
+        deleteModal.hide();
+
+        // Uncheck the "select all" checkbox
+        document.getElementById('selectAll').checked = false;
+    };
+}
+
 // Function to handle edit button click
 function handleEditCoupon(couponId) {
     const coupons = loadCoupons();
@@ -690,95 +501,8 @@ function updateCouponData(couponId, couponIndex, coupons, bannerData) {
     renderCoupons();
 }
 
-// Left nav toggle
-document.getElementById('menuIcon').addEventListener('click', function() {
-    const leftNav = document.getElementById('leftNav');
-    leftNav.style.display = leftNav.style.display === 'block' ? 'none' : 'block';
-});
-
-// Profile menu toggle
-document.getElementById('profileIcon').addEventListener('click', function(e) {
-    e.stopPropagation();
-    const menu = document.getElementById('profileMenu');
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-});
-
-// Close profile menu when clicking outside
-document.addEventListener('click', function() {
-    document.getElementById('profileMenu').style.display = 'none';
-});
-
-// Submenu toggles
-document.getElementById('onlineStoreToggle').addEventListener('click', function() {
-    const sub = document.getElementById('onlineStoreSub');
-    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-});
-
-document.getElementById('catalogToggle').addEventListener('click', function() {
-    const sub = document.getElementById('catalogSub');
-    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-});
-
-document.getElementById('customersToggle').addEventListener('click', function() {
-    const sub = document.getElementById('customersSub');
-    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-});
-
-
+// Search and filter functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const leftNav = document.getElementById('leftNav');
-    leftNav.style.display = 'block';
-    
-    // Initialize with sample data if localStorage is empty
-    initializeSampleData();
-    renderCoupons();
-});
-
-
-// Filter functionality
-document.getElementById('filterBtn').addEventListener('click', function() {
-    const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
-    const discountType = document.querySelector('#discountTypeDropdown + .dropdown-menu .active').textContent;
-    const status = document.querySelector('#statusDropdown + .dropdown-menu .active').textContent;
-    
-    const rows = document.querySelectorAll('#couponsTableBody tr');
-    
-    rows.forEach(row => {
-        const couponName = row.cells[2].textContent.toLowerCase();
-        const rowDiscountType = row.cells[5].textContent;
-        const rowStatus = row.cells[6].textContent;
-        
-        const nameMatch = searchTerm === '' || couponName.includes(searchTerm);
-        const typeMatch = discountType === 'All Types' || rowDiscountType.includes(discountType);
-        const statusMatch = status === 'All Statuses' || rowStatus.includes(status);
-        
-        row.style.display = (nameMatch && typeMatch && statusMatch) ? '' : 'none';
-    });
-});
-
-// Reset functionality
-document.getElementById('resetBtn').addEventListener('click', function() {
-    // Reset search input
-    document.querySelector('.search-box input').value = '';
-    
-    // Reset dropdown selections
-    document.querySelectorAll('#discountTypeDropdown + .dropdown-menu .dropdown-item, #statusDropdown + .dropdown-menu .dropdown-item')
-        .forEach(item => item.classList.remove('active'));
-    document.querySelectorAll('#discountTypeDropdown + .dropdown-menu .dropdown-item:first-child, #statusDropdown + .dropdown-menu .dropdown-item:first-child')
-        .forEach(item => item.classList.add('active'));
-    
-    // Show all rows
-    document.querySelectorAll('#couponsTableBody tr').forEach(row => {
-        row.style.display = '';
-    });
-});
-
-// Add this script to enable all filter functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dropdown selections
-    document.querySelectorAll('#discountTypeDropdown + .dropdown-menu .dropdown-item:first-child, #statusDropdown + .dropdown-menu .dropdown-item:first-child')
-        .forEach(item => item.classList.add('active'));
-
     // Search functionality
     const searchInput = document.querySelector('.search-box input');
     const searchButton = document.querySelector('.search-box button');
@@ -870,65 +594,68 @@ document.addEventListener('DOMContentLoaded', function() {
             row.style.display = '';
         });
     });
+
+    // Add click handler for delete selected button
+    document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedRows);
 });
 
-    // Export functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add event listeners to export dropdown items
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            if (item.textContent.includes('Excel')) {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    exportToExcel();
-                });
-            } else if (item.textContent.includes('CSV')) {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    exportToCSV();
-                });
-            }
-        });
-
-        function exportToExcel() {
-            try {
-                // Get the table element
-                const table = document.querySelector('.table-container table');
-                
-                // Create a workbook with the table data
-                const workbook = XLSX.utils.table_to_book(table, {sheet: "Coupons"});
-                
-                // Generate Excel file and trigger download
-                XLSX.writeFile(workbook, 'coupons_export.xlsx');
-            } catch (error) {
-                console.error('Error exporting to Excel:', error);
-                alert('Error exporting to Excel. Please try again.');
-            }
-        }
-
-        function exportToCSV() {
-            try {
-                // Get the table element
-                const table = document.querySelector('.table-container table');
-                
-                // Convert table to worksheet
-                const worksheet = XLSX.utils.table_to_sheet(table);
-                
-                // Convert worksheet to CSV
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                
-                // Create download link
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", "coupons_export.csv");
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                console.error('Error exporting to CSV:', error);
-                alert('Error exporting to CSV. Please try again.');
-            }
+// Export functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to export dropdown items
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        if (item.textContent.includes('Excel')) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                exportToExcel();
+            });
+        } else if (item.textContent.includes('CSV')) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                exportToCSV();
+            });
         }
     });
+
+    function exportToExcel() {
+        try {
+            // Get the table element
+            const table = document.querySelector('.table-container table');
+            
+            // Create a workbook with the table data
+            const workbook = XLSX.utils.table_to_book(table, {sheet: "Coupons"});
+            
+            // Generate Excel file and trigger download
+            XLSX.writeFile(workbook, 'coupons_export.xlsx');
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            alert('Error exporting to Excel. Please try again.');
+        }
+    }
+
+    function exportToCSV() {
+        try {
+            // Get the table element
+            const table = document.querySelector('.table-container table');
+            
+            // Convert table to worksheet
+            const worksheet = XLSX.utils.table_to_sheet(table);
+            
+            // Convert worksheet to CSV
+            const csv = XLSX.utils.sheet_to_csv(worksheet);
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "coupons_export.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error exporting to CSV:', error);
+            alert('Error exporting to CSV. Please try again.');
+        }
+    }
+});
