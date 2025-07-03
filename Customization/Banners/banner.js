@@ -156,33 +156,38 @@ class BannerManager {
         this.noData.style.display = 'none';
 
         const tableHTML = this.filteredBanners.map(banner => `
-            <tr>
-                <td>${this.escapeHtml(banner.pageName || '')}</td>
-                <td>${this.escapeHtml(banner.header || '')}</td>
-                <td>${this.escapeHtml(banner.text || '')}</td>
-                <td>${this.renderImageCell(banner.bannerFileOne)}</td>
-                <td>${this.renderImageCell(banner.bannerFileTwo)}</td>
-                <td>${this.renderImageCell(banner.bannerFileThree)}</td>
-                <td>${this.renderImageCell(banner.bannerFileFour)}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="edit-btn" onclick="bannerManager.editBanner(${banner.id})">
-                            Edit
-                        </button>
-                        <button class="delete-btn" onclick="bannerManager.confirmDelete(${banner.id})">
-                            Delete
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+        <tr>
+            <td>${this.escapeHtml(banner.pageName || '')}</td>
+            <td>${this.escapeHtml(banner.header || '')}</td>
+            <td>${this.escapeHtml(banner.text || '')}</td>
+            <td>${this.renderImageCell(banner.bannerFileOne, 'jpeg')}</td>
+            <td>${this.renderImageCell(banner.bannerFileTwo, 'jpeg')}</td>
+            <td>${this.renderImageCell(banner.bannerFileThree, 'jpeg')}</td>
+            <td>${this.renderImageCell(banner.bannerFileFour, 'jpeg')}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="edit-btn" onclick="bannerManager.editBanner(${banner.id})">
+                        Edit
+                    </button>
+                    <button class="delete-btn" onclick="bannerManager.confirmDelete(${banner.id})">
+                        Delete
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
 
         this.bannerTableBody.innerHTML = tableHTML;
     }
 
-    renderImageCell(imageUrl) {
-        if (imageUrl) {
-            return `<img src="${imageUrl}" alt="Banner Image" class="image-cell">`;
+    renderImageCell(imageData, imageType = 'jpeg') {
+        if (imageData) {
+            // Check if it's already a data URL
+            if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+                return `<img src="${imageData}" alt="Banner Image" class="image-cell">`;
+            }
+            // Otherwise format as base64 data URL
+            return `<img src="data:image/${imageType};base64,${imageData}" alt="Banner Image" class="image-cell">`;
         } else {
             return '<div class="no-image">No Image</div>';
         }
