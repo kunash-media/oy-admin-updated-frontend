@@ -35,7 +35,365 @@ document.addEventListener('DOMContentLoaded', function() {
         const sub = document.getElementById('customersSub');
         sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
     });
+
+    // Load FAQs from backend on page load
+    loadFAQsFromBackend();
 });
+
+// Backend API configuration
+const API_BASE_URL = 'http://localhost:8080/api/faq'; // Update this with your actual backend URL
+
+// Utility function to show loading state
+function showLoading(containerId) {
+    const container = document.getElementById(containerId);
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = `${containerId}-loading`;
+    loadingDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    container.appendChild(loadingDiv);
+}
+
+// Utility function to hide loading state
+function hideLoading(containerId) {
+    const loading = document.getElementById(`${containerId}-loading`);
+    if (loading) {
+        loading.remove();
+    }
+}
+
+// Function to show error message
+function showError(message, containerId) {
+    const container = document.getElementById(containerId);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+    errorDiv.innerHTML = `
+        <strong>Error!</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.insertBefore(errorDiv, container.firstChild);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.parentNode.removeChild(errorDiv);
+        }
+    }, 5000);
+}
+
+// Function to show success message
+function showSuccess(message, containerId) {
+    const container = document.getElementById(containerId);
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success alert-dismissible fade show';
+    successDiv.innerHTML = `
+        <strong>Success!</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.insertBefore(successDiv, container.firstChild);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
+}
+
+// Function to load FAQs from backend
+async function loadFAQsFromBackend() {
+    try {
+        showLoading('faqContainer');
+
+        const response = await fetch(`${API_BASE_URL}/get-All-Active-FAQs`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const faqs = await response.json();
+        hideLoading('faqContainer');
+
+        if (faqs && faqs.length > 0) {
+            populateFAQsFromBackend(faqs);
+        } else {
+            // If no FAQs found, use dummy data
+            populateDummyData();
+        }
+
+    } catch (error) {
+        hideLoading('faqContainer');
+        console.error('Error loading FAQs:', error);
+        showError('Failed to load FAQs from server. Loading dummy data instead.', 'faqContainer');
+        populateDummyData();
+    }
+}
+
+// Function to populate FAQs from backend data
+function populateFAQsFromBackend(faqs) {
+    const faqContainer = document.getElementById('faqContainer');
+
+    // Clear existing FAQ items
+    faqContainer.innerHTML = '';
+
+    faqs.forEach((faq, index) => {
+        const newItem = document.createElement('div');
+        newItem.className = 'faq-item mb-4';
+        newItem.setAttribute('data-faq-id', faq.id);
+        newItem.innerHTML = `
+            <div class="mb-3">
+                <label class="form-label">Question ${index + 1}</label>
+                <input type="text" class="form-control faq-question" placeholder="Enter question" value="${faq.question || ''}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Answer ${index + 1}</label>
+                <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer">${faq.answer || ''}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input type="text" class="form-control faq-category" placeholder="Enter category" value="${faq.category || ''}">
+            </div>
+            <div class="mb-3">
+                <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateFAQ(${faq.id})">Update</button>
+                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteFAQ(${faq.id})">Delete</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFAQStatus(${faq.id})">${faq.active ? 'Deactivate' : 'Activate'}</button>
+            </div>
+        `;
+
+        faqContainer.appendChild(newItem);
+    });
+}
+
+// Function to save all FAQs to backend
+async function saveAllFAQsToBackend() {
+    const faqContainer = document.getElementById('faqContainer');
+    const faqItems = faqContainer.querySelectorAll('.faq-item');
+
+    try {
+        showLoading('faqContainer');
+
+        for (let item of faqItems) {
+            const faqId = item.getAttribute('data-faq-id');
+            const question = item.querySelector('.faq-question').value;
+            const answer = item.querySelector('.faq-answer').value;
+            const category = item.querySelector('.faq-category').value || 'General';
+
+            const faqData = {
+                question: question,
+                answer: answer,
+                category: category,
+                active: true
+            };
+
+            if (faqId && faqId !== 'null') {
+                // Update existing FAQ
+                await updateFAQInBackend(faqId, faqData);
+            } else {
+                // Create new FAQ
+                const newFAQ = await createFAQInBackend(faqData);
+                if (newFAQ) {
+                    item.setAttribute('data-faq-id', newFAQ.id);
+                }
+            }
+        }
+
+        hideLoading('faqContainer');
+        showSuccess('All FAQs saved successfully!', 'faqContainer');
+
+    } catch (error) {
+        hideLoading('faqContainer');
+        console.error('Error saving FAQs:', error);
+        showError('Failed to save FAQs. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to create FAQ in backend
+async function createFAQInBackend(faqData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/create-FAQ`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(faqData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error creating FAQ:', error);
+        throw error;
+    }
+}
+
+// Function to update FAQ in backend
+async function updateFAQInBackend(id, faqData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(faqData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating FAQ:', error);
+        throw error;
+    }
+}
+
+// Function to update single FAQ
+async function updateFAQ(id) {
+    const faqItem = document.querySelector(`[data-faq-id="${id}"]`);
+    if (!faqItem) return;
+
+    const question = faqItem.querySelector('.faq-question').value;
+    const answer = faqItem.querySelector('.faq-answer').value;
+    const category = faqItem.querySelector('.faq-category').value || 'General';
+
+    const faqData = {
+        question: question,
+        answer: answer,
+        category: category,
+        active: true
+    };
+
+    try {
+        await updateFAQInBackend(id, faqData);
+        showSuccess('FAQ updated successfully!', 'faqContainer');
+    } catch (error) {
+        showError('Failed to update FAQ. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to delete FAQ
+async function deleteFAQ(id) {
+    if (!confirm('Are you sure you want to delete this FAQ?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Remove from DOM
+        const faqItem = document.querySelector(`[data-faq-id="${id}"]`);
+        if (faqItem) {
+            faqItem.remove();
+        }
+
+        showSuccess('FAQ deleted successfully!', 'faqContainer');
+
+    } catch (error) {
+        console.error('Error deleting FAQ:', error);
+        showError('Failed to delete FAQ. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to toggle FAQ status
+async function toggleFAQStatus(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/${id}/toggle-status`, {
+            method: 'PUT'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const updatedFAQ = await response.json();
+
+        // Update button text
+        const faqItem = document.querySelector(`[data-faq-id="${id}"]`);
+        if (faqItem) {
+            const toggleBtn = faqItem.querySelector('.btn-secondary');
+            toggleBtn.textContent = updatedFAQ.active ? 'Deactivate' : 'Activate';
+        }
+
+        showSuccess(`FAQ ${updatedFAQ.active ? 'activated' : 'deactivated'} successfully!`, 'faqContainer');
+
+    } catch (error) {
+        console.error('Error toggling FAQ status:', error);
+        showError('Failed to toggle FAQ status. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to search FAQs
+async function searchFAQs(keyword) {
+    if (!keyword.trim()) {
+        loadFAQsFromBackend();
+        return;
+    }
+
+    try {
+        showLoading('faqContainer');
+
+        const response = await fetch(`${API_BASE_URL}/search?keyword=${encodeURIComponent(keyword)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const faqs = await response.json();
+        hideLoading('faqContainer');
+
+        populateFAQsFromBackend(faqs);
+
+    } catch (error) {
+        hideLoading('faqContainer');
+        console.error('Error searching FAQs:', error);
+        showError('Failed to search FAQs. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to load FAQs by category
+async function loadFAQsByCategory(category) {
+    try {
+        showLoading('faqContainer');
+
+        const response = await fetch(`${API_BASE_URL}/category/${encodeURIComponent(category)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const faqs = await response.json();
+        hideLoading('faqContainer');
+
+        populateFAQsFromBackend(faqs);
+
+    } catch (error) {
+        hideLoading('faqContainer');
+        console.error('Error loading FAQs by category:', error);
+        showError('Failed to load FAQs by category. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to load all categories
+async function loadAllCategories() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/categories`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const categories = await response.json();
+        return categories;
+
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        return [];
+    }
+}
 
 // Function to open overlay
 function openOverlay(id) {
@@ -47,25 +405,79 @@ function closeOverlay(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Function to add FAQ item
+// Function to add FAQ item (enhanced with backend connectivity)
 function addFaqItem() {
     const container = document.getElementById('faqContainer');
     const count = container.children.length + 1;
 
     const newItem = document.createElement('div');
     newItem.className = 'faq-item mb-4';
+    newItem.setAttribute('data-faq-id', 'null'); // Mark as new item
     newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Question ${count}</label>
-                <input type="text" class="form-control" placeholder="Enter question">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Answer ${count}</label>
-                <textarea class="form-control" rows="3" placeholder="Enter answer"></textarea>
-            </div>
-        `;
+        <div class="mb-3">
+            <label class="form-label">Question ${count}</label>
+            <input type="text" class="form-control faq-question" placeholder="Enter question">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Answer ${count}</label>
+            <textarea class="form-control faq-answer" rows="3" placeholder="Enter answer"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input type="text" class="form-control faq-category" placeholder="Enter category" value="General">
+        </div>
+        <div class="mb-3">
+            <button type="button" class="btn btn-success btn-sm me-2" onclick="saveSingleFAQ(this)">Save</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFAQItem(this)">Remove</button>
+        </div>
+    `;
 
     container.appendChild(newItem);
+}
+
+// Function to save single FAQ item
+async function saveSingleFAQ(button) {
+    const faqItem = button.closest('.faq-item');
+    const question = faqItem.querySelector('.faq-question').value;
+    const answer = faqItem.querySelector('.faq-answer').value;
+    const category = faqItem.querySelector('.faq-category').value;
+
+    if (!question.trim() || !answer.trim()) {
+        showError('Please fill in both question and answer fields.', 'faqContainer');
+        return;
+    }
+
+    const faqData = {
+        question: question,
+        answer: answer,
+        category: category || 'General',
+        active: true
+    };
+
+    try {
+        const newFAQ = await createFAQInBackend(faqData);
+        if (newFAQ) {
+            faqItem.setAttribute('data-faq-id', newFAQ.id);
+
+            // Update buttons
+            const buttonContainer = faqItem.querySelector('.mb-3:last-child');
+            buttonContainer.innerHTML = `
+                <button type="button" class="btn btn-primary btn-sm me-2" onclick="updateFAQ(${newFAQ.id})">Update</button>
+                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteFAQ(${newFAQ.id})">Delete</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFAQStatus(${newFAQ.id})">Deactivate</button>
+            `;
+
+            showSuccess('FAQ saved successfully!', 'faqContainer');
+        }
+    } catch (error) {
+        showError('Failed to save FAQ. Please try again.', 'faqContainer');
+    }
+}
+
+// Function to remove FAQ item from DOM (for unsaved items)
+function removeFAQItem(button) {
+    const faqItem = button.closest('.faq-item');
+    faqItem.remove();
 }
 
 // Function to add Shipping item
@@ -76,15 +488,15 @@ function addShippingItem() {
     const newItem = document.createElement('div');
     newItem.className = 'shipping-item mb-4';
     newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Heading</label>
-                <input type="text" class="form-control" placeholder="Enter heading">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Content</label>
-                <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-            </div>
-        `;
+        <div class="mb-3">
+            <label class="form-label">Heading</label>
+            <input type="text" class="form-control" placeholder="Enter heading">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Content</label>
+            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
+        </div>
+    `;
 
     container.appendChild(newItem);
 }
@@ -97,15 +509,15 @@ function addCancellationItem() {
     const newItem = document.createElement('div');
     newItem.className = 'cancellation-item mb-4';
     newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Heading</label>
-                <input type="text" class="form-control" placeholder="Enter heading">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Content</label>
-                <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-            </div>
-        `;
+        <div class="mb-3">
+            <label class="form-label">Heading</label>
+            <input type="text" class="form-control" placeholder="Enter heading">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Content</label>
+            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
+        </div>
+    `;
 
     container.appendChild(newItem);
 }
@@ -118,15 +530,15 @@ function addDisclaimerQnaItem() {
     const newItem = document.createElement('div');
     newItem.className = 'disclaimer-qna-item mb-4';
     newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Question</label>
-                <input type="text" class="form-control" placeholder="Enter question">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Answer</label>
-                <textarea class="form-control" rows="3" placeholder="Enter answer"></textarea>
-            </div>
-        `;
+        <div class="mb-3">
+            <label class="form-label">Question</label>
+            <input type="text" class="form-control" placeholder="Enter question">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Answer</label>
+            <textarea class="form-control" rows="3" placeholder="Enter answer"></textarea>
+        </div>
+    `;
 
     container.appendChild(newItem);
 }
@@ -139,20 +551,20 @@ function addDisclaimerTextItem() {
     const newItem = document.createElement('div');
     newItem.className = 'disclaimer-text-item mb-4';
     newItem.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label">Text Heading</label>
-                <input type="text" class="form-control" placeholder="Enter heading">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Text Content</label>
-                <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
-            </div>
-        `;
+        <div class="mb-3">
+            <label class="form-label">Text Heading</label>
+            <input type="text" class="form-control" placeholder="Enter heading">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Text Content</label>
+            <textarea class="form-control" rows="3" placeholder="Enter content"></textarea>
+        </div>
+    `;
 
     container.appendChild(newItem);
 }
 
-// Function to populate all fields with dummy data
+// Function to populate all fields with dummy data (preserved original functionality)
 function populateDummyData() {
     // FAQ Section
     const faqContainer = document.getElementById('faqContainer');
@@ -164,10 +576,18 @@ function populateDummyData() {
         answer: "We accept returns within 30 days of purchase. Items must be unused and in their original packaging. Please contact our customer service to initiate a return."
     }];
 
+    // Clear existing items
+    faqContainer.innerHTML = '';
+
     faqItems.forEach((item, index) => {
         if (index > 0) addFaqItem();
-        const inputs = faqContainer.children[index].getElementsByTagName('input');
-        const textareas = faqContainer.children[index].getElementsByTagName('textarea');
+        else {
+            // Add first item
+            addFaqItem();
+        }
+        const lastItem = faqContainer.children[faqContainer.children.length - 1];
+        const inputs = lastItem.getElementsByTagName('input');
+        const textareas = lastItem.getElementsByTagName('textarea');
         inputs[0].value = item.question;
         textareas[0].value = item.answer;
     });
@@ -243,7 +663,7 @@ function populateDummyData() {
         inputs[0].value = item.heading;
         textareas[0].value = item.content;
     });
-}
 
+}
 // Call the function when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', populateDummyData);
