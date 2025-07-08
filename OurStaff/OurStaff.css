@@ -91,7 +91,7 @@
         margin: 20px;
         background: var(--card-bg);
         border-radius: 8px;
-        overflow: hidden;
+        overflow: auto;
         border: 1px solid var(--border-color);
     }
 

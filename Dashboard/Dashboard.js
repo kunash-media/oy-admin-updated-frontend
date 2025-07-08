@@ -1,10 +1,10 @@
  // Navigation functions
         function toggleLeftNav() {
             const leftNav = document.getElementById('leftNavbar');
-            const mainContent = document.getElementById('mainContent');
+            // const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {
