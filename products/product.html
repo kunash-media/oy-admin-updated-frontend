@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management System</title>
+    <link rel="stylesheet" href="../products/product.css">
+    <link rel="stylesheet" href="../Admin_Details/admin.css">
+    <!-- <script src="../Admin_Details/admin.js"></script> -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+</head>
+
+<style>
+         .top-navbar {
+            background-color: #2d2d30;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+ 
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+ 
+        .menu-icon {
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+ 
+        .admin-name {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+        }
+ 
+        .nav-right {
+            position: relative;
+        }
+ 
+        .profile-icon {
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+ 
+        .dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            min-width: 120px;
+        }
+ 
+        .dropdown.show {
+            display: block;
+        }
+ 
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+ 
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+ 
+        /* Left Navigation Bar */
+        .left-navbar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: #2d2d30;
+            transition: left 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+ 
+        .left-navbar.open {
+            left: 0;
+        }
+ 
+        .nav-item {
+            border-bottom: 1px solid #404040;
+        }
+ 
+        .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+ 
+        .nav-link:hover {
+            background-color: #404040;
+        }
+ 
+        .nav-arrow {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+ 
+        .nav-arrow.rotated {
+            transform: rotate(90deg);
+        }
+ 
+        .sub-menu {
+            background-color: #404040;
+            display: none;
+        }
+ 
+        .sub-menu.show {
+            display: block;
+        }
+ 
+        .sub-link {
+            padding: 12px 40px;
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+ 
+        .sub-link:hover {
+            background-color: #505050;
+        }
+
+    a {
+        text-decoration: none;
+        color: white;
+    }  
+</style>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <div class="menu-icon" onclick="toggleLeftNav()">☰</div>
+            <span class="admin-name">Admin</span>
+        </div>
+        <div class="nav-right">
+            <div class="profile-icon" onclick="toggleDropdown()"><i class="fas fa-user-circle profile-icon" id="profileIcon"></i></div>
+            <div class="dropdown" id="profileDropdown">
+                <div class="dropdown-item" onclick="logout()">Logout</div>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Left Navigation Bar -->
+    <div class="left-navbar" id="leftNavbar">
+        <div class="nav-item">
+
+           <div class="nav-link" ><a href="../Dashboard/Dashboard.html">Dashboard</a></div>
+            <div class="nav-link" onclick="toggleSubMenu('inventory')">
+                <span>Inventory</span>
+                <span class="nav-arrow" id="inventoryArrow">▶</span>
+            </div>
+            <div class="sub-menu" id="inventoryMenu">
+                <a href="../products/product.html" class="sub-link">Product</a>
+                <a href="../Banners/banner.html" class="sub-link">Banners</a>
+                <a href="#" class="sub-link">Coupons</a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu('customers')">
+                <span>Customers</span>
+                <span class="nav-arrow" id="customersArrow">▶</span>
+            </div>
+            <div class="sub-menu" id="customersMenu">
+                <a href="../CustomerDetails/CustomerDetails.html" class="sub-link">Customer Details</a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link">
+                <a href="../Order/Orders.html"><span>Order</span></a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu('store')">
+                <span>Store Customization</span>
+                <span class="nav-arrow" id="storeArrow">▶</span>
+            </div>
+            <div class="sub-menu" id="storeMenu">
+                <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="sub-link">About Us</a>
+                <a href="../Customization/contact/Contactus-Customization.html" class="sub-link">Contact Us</a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link">
+                <a href="../OurStaff/OurStaff.html"><span>Our Staff</span></a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu('settings')">
+                <span>Settings</span>
+                <span class="nav-arrow" id="settingsArrow">▶</span>
+            </div>
+            <div class="sub-menu" id="settingsMenu">
+                <a href="../Admin_Details/AdminDetails.html" class="sub-link">Admin Details</a>
+            </div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-link" onclick="logout()">
+                <a href="../Login/Login.html"><span>Logout</span></a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <header class="header">
+            <h1>Product Management</h1>
+            <button class="add-product-btn" onclick="openAddProductModal()">+ Add Product</button>
+        </header>
+
+        <div class="search-filter-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by product title..." onkeyup="searchProducts()">
+            </div>
+            <div class="filter-box">
+                <select id="categoryFilter" onchange="filterByCategory()">
+                    <option value="">All Categories</option>
+                    <option value="rings">Rings</option>
+                    <option value="necklaces">Necklaces</option>
+                    <option value="earrings">Earrings</option>
+                    <option value="bracelets">Bracelets</option>
+                    <option value="chain">Chain</option>
+                    <option value="hair-accessories">Hair Accessories</option>
+                    <option value="mangalsutra">Mangalsutra</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="productTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Sub Images</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Old Price</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Quantity</th>
+                        <th>Sizes</th>
+                        <th>Discount</th>
+                        <th>Rating</th>
+                        <th>SKU</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <!-- Product rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="loading" id="loading">Loading products...</div>
+        <div class="error" id="error" style="display: none;"></div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Product</h2>
+                <span class="close" onclick="closeProductModal()">&times;</span>
+            </div>
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="productTitle">Product Title *</label>
+                        <input type="text" id="productTitle" name="productTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input type="number" id="productPrice" name="productPrice" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productOldPrice">Old Price</label>
+                        <input type="number" id="productOldPrice" name="productOldPrice" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" name="productCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="rings">Rings</option>
+                            <option value="necklaces">Necklaces</option>
+                            <option value="earrings">Earrings</option>
+                            <option value="bracelets">Bracelets</option>
+                            <option value="chain">Chain</option>
+                            <option value="hair-accessories">Hair Accessories</option>
+                            <option value="mangalsutra">Mangalsutra</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productStock">Stock Status *</label>
+                        <select id="productStock" name="productStock" required>
+                            <option value="in-stock">In Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                            <option value="limited-stock">Limited Stock</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productQuantity">Quantity *</label>
+                        <input type="number" id="productQuantity" name="productQuantity" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shopBy">Shop By</label>
+                        <input type="text" id="shopBy" name="shopBy" value="jewelry">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDiscount">Discount</label>
+                        <input type="text" id="productDiscount" name="productDiscount" placeholder="e.g., 25%">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCouponCode">Coupon Code</label>
+                        <input type="text" id="productCouponCode" name="productCouponCode">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stoneColor">Stone Color</label>
+                        <input type="text" id="stoneColor" name="stoneColor">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metalColor">Metal Color</label>
+                        <input type="text" id="metalColor" name="metalColor">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="skuNo">SKU Number</label>
+                        <input type="text" id="skuNo" name="skuNo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Rating</label>
+                        <input type="number" id="rating" name="rating" min="0" max="5" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" name="productDescription" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productFeatures">Features (one per line)</label>
+                    <textarea id="productFeatures" name="productFeatures" rows="3" placeholder="Enter each feature on a new line"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productSizes">Available Sizes (comma-separated)</label>
+                    <input type="text" id="productSizes" name="productSizes" placeholder="e.g., 5, 6, 7, 8">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productUnavailableSizes">Unavailable Sizes (comma-separated)</label>
+                    <input type="text" id="productUnavailableSizes" name="productUnavailableSizes" placeholder="e.g., 8, 9">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productImage">Main Product Image *</label>
+                    <input type="file" id="productImage" name="productImage" accept="image/*" required>
+                    <div id="mainImagePreview" class="image-preview"></div>
+                    <div id="currentMainImage" class="current-image-container" style="display: none;">
+                        <p>Current Image:</p>
+                        <div class="current-image-wrapper">
+                            <img id="currentMainImageDisplay" src="" alt="Current main image" class="current-image">
+                            <button type="button" class="remove-image-btn" onclick="removeCurrentMainImage()">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="productSubImages">Sub Images (max 5)</label>
+                    <input type="file" id="productSubImages" name="productSubImages" accept="image/*" multiple>
+                    <div id="subImagesPreview" class="image-preview"></div>
+                    <div id="currentSubImages" class="current-images-container" style="display: none;">
+                        <p>Current Sub Images:</p>
+                        <div id="currentSubImagesDisplay" class="current-sub-images"></div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeProductModal()">Cancel</button>
+                    <button type="submit" id="submitBtn">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../products/product.js"></script>
+    
+</body>
+</html>

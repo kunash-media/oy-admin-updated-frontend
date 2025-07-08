@@ -1,117 +1,282 @@
-body {
-    background-color: #111827;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "Ancizar Serif";
-}
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.account-container {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    width: 50%;
-    min-height: 324px;
-    box-shadow: 0 0 15px 5px rgba(128, 128, 128, 0.7);
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.account-image {
-    width: 50%;
-    background: url('https://via.placeholder.com/400') no-repeat center;
-    background-size: cover;
-    position: relative;
-}
+        .account-container {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+        }
 
-.video-overlay-content {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    color: white;
-    z-index: 30;
-    padding: 20px;
-    max-width: 90%;
-}
+        .account-image {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
 
-.brand-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    font-style: italic;
-    color: #FFD700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-}
+        .video-overlay-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 15;
+            padding: 20px;
+        }
 
-.brand-description {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-    font-weight: 300;
-    text-align: justify;
-}
+        .brand-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
 
-.account-form {
-    width: 50%;
-    padding: 40px;
-    background-color: #1F2937;
-}
+        .brand-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 400px;
+            margin: 0 auto;
+        }
 
-.account-form h4 {
-    text-align: center;
-    margin-bottom: 20px;
-}
+        .account-form {
+            flex: 1;
+            padding: 30px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
 
-.create-btn {
-    width: 100%;
-    background-color: #20c997;
-    color: white;
-    border: none;
-}
+        .account-form h4 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
 
-.create-btn:hover {
-    background-color: #168f71;
-}
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-.google-btn {
-    width: 100%;
-    background-color: grey;
-    color: white;
-    border: none;
-    height: 10%;
-}
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
-.google-btn:hover {
-    background-color: #ff4500;
-}
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
 
-.divider {
-    width: 100%;
-    height: 1px;
-    background-color: white;
-    margin: 15px 0;
-}
+        .form-control:focus {
+            outline: none;
+            border-color: darkcyan;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 139, 139, 0.1);
+        }
 
-.login-link {
-    display: block;
-    text-align: center;
-    color: #20c997;
-    margin-top: 10px;
-}
+        .form-control::placeholder {
+            color: #999;
+        }
 
-.valid {
-    border: 2px solid green;
-}
+        .form-control.valid {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
+        }
 
-.invalid {
-    border: 2px solid red;
-}
+        .form-control.invalid {
+            border-color: #f56565;
+            background: rgba(245, 101, 101, 0.1);
+        }
 
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            accent-color: darkcyan;
+        }
+
+        .form-check-label {
+            color: #333;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .create-btn {
+            width: 100%;
+            padding: 12px;
+            background: darkcyan;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 139, 139, 0.3);
+            background: #008b8b;
+        }
+
+        .create-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-link {
+            text-align: center;
+            color: darkcyan;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .login-link:hover {
+            color: #5a6fd8;
+            text-decoration: underline;
+        }
+
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border-radius: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .account-container {
+                flex-direction: column;
+                margin: 10px;
+                max-width: 100%;
+            }
+
+            .account-image {
+                min-height: 250px;
+                order: 2;
+            }
+
+            .brand-title {
+                font-size: 2rem;
+            }
+
+            .brand-description {
+                font-size: 1rem;
+            }
+
+            .account-form {
+                padding: 30px 20px;
+                order: 1;
+            }
+
+            .account-form h4 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                padding: 10px 14px;
+            }
+
+            .create-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .account-container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+
+            .account-form {
+                padding: 20px 15px;
+            }
+
+            .brand-title {
+                font-size: 1.5rem;
+            }
+
+            .brand-description {
+                font-size: 0.9rem;
+            }
+
+            .form-control {
+                padding: 8px 12px;
+            }
+        }
+
+        /* Logo positioning */
+        .logo-img {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 80px;
+            height: auto;
+            z-index: 20;
+        }
+
+        @media (max-width: 768px) {
+            .logo-img {
+                width: 60px;
+                bottom: 5px;
+                right: 5px;
+            }
+        }
