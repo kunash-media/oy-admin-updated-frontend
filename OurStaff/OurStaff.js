@@ -403,9 +403,7 @@ function renderStaffTable() {
     
     tbody.innerHTML = filteredStaffData.map(staff => `
         <tr>
-            <td>
-                <input type="checkbox" class="staff-checkbox" value="${staff.staffId || staff.id}">
-            </td>
+            
             <td>${staff.staffId || staff.id || 'N/A'}</td>
             <td>
                 ${staff.staffImageUrl ? 

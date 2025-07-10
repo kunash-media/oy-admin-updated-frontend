@@ -6,7 +6,6 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
 
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -167,7 +166,10 @@
             <span class="admin-name">Admin</span>
         </div>
         <div class="nav-right">
-            <div class="profile-icon" onclick="toggleDropdown()"><i class="fas fa-user-circle profile-icon" id="profileIcon"></i></div>
+            <div style="display: flex; " class="profile-icon" onclick="toggleDropdown()">
+                <div style="font-size: 22px;">
+                    name  
+                </div> --<i class="fas fa-user-circle profile-icon" id="profileIcon"></i></div>
             <div class="dropdown" id="profileDropdown">
                 <div class="dropdown-item" onclick="logout()">Logout</div>
             </div>

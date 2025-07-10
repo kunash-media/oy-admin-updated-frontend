@@ -6,6 +6,7 @@ class BannerManager {
         this.filteredBanners = [];
         this.currentEditId = null;
         this.baseUrl = 'http://localhost:8080/api/banners';
+        this.maxImagesForBannerOne = 5;
 
         this.initializeElements();
         this.attachEventListeners();
@@ -96,7 +97,7 @@ class BannerManager {
 
         // File input previews
         this.bannerFileOne.addEventListener('change', (e) => {
-            this.previewImage(e.target, this.previewOne);
+            this.previewMultipleImages(e.target, this.previewOne);
         });
 
         this.bannerFileTwo.addEventListener('change', (e) => {
@@ -162,7 +163,7 @@ class BannerManager {
             <td>${this.escapeHtml(banner.pageName || '')}</td>
             <td>${this.escapeHtml(banner.header || '')}</td>
             <td>${this.escapeHtml(banner.text || '')}</td>
-            <td>${this.renderImageCell(banner.bannerFileOne, 'jpeg')}</td>
+            <td>${this.renderMultipleImageCell(banner.bannerFileOne, 'jpeg')}</td>
             <td>${this.renderImageCell(banner.bannerFileTwo, 'jpeg')}</td>
             <td>${this.renderImageCell(banner.bannerFileThree, 'jpeg')}</td>
             <td>${this.renderImageCell(banner.bannerFileFour, 'jpeg')}</td>
@@ -180,6 +181,36 @@ class BannerManager {
     `).join('');
 
         this.bannerTableBody.innerHTML = tableHTML;
+    }
+
+    renderMultipleImageCell(imageData, imageType = 'jpeg') {
+        if (imageData && Array.isArray(imageData) && imageData.length > 0) {
+            // Display multiple images with count
+            const firstImage = imageData[0];
+            let src;
+            if (typeof firstImage === 'string' && firstImage.startsWith('data:')) {
+                src = firstImage;
+            } else {
+                src = `data:image/${imageType};base64,${firstImage}`;
+            }
+            return `
+                <div class="multiple-images-cell">
+                    <img src="${src}" alt="Banner Image" class="image-cell">
+                    <span class="image-count">${imageData.length} image${imageData.length > 1 ? 's' : ''}</span>
+                </div>
+            `;
+        } else if (imageData && typeof imageData === 'string') {
+            // Handle single image (backward compatibility)
+            let src;
+            if (imageData.startsWith('data:')) {
+                src = imageData;
+            } else {
+                src = `data:image/${imageType};base64,${imageData}`;
+            }
+            return `<img src="${src}" alt="Banner Image" class="image-cell">`;
+        } else {
+            return '<div class="no-image">No Images</div>';
+        }
     }
 
     renderImageCell(imageData, imageType = 'jpeg') {
@@ -227,49 +258,120 @@ class BannerManager {
         this.bannerFileTwo.required = true;
     }
 
-   populateForm(bannerId) {
-    const banner = this.banners.find(b => b.id === bannerId);
-    if (!banner) return;
+    populateForm(bannerId) {
+        const banner = this.banners.find(b => b.id === bannerId);
+        if (!banner) return;
 
-    this.pageNameInput.value = banner.pageName || '';
-    this.headerInput.value = banner.header || '';
-    this.textInput.value = banner.text || '';
+        this.pageNameInput.value = banner.pageName || '';
+        this.headerInput.value = banner.header || '';
+        this.textInput.value = banner.text || '';
 
-    // Make file inputs optional for edit mode
-    this.bannerFileOne.required = false;
-    this.bannerFileTwo.required = false;
+        // Make file inputs optional for edit mode
+        this.bannerFileOne.required = false;
+        this.bannerFileTwo.required = false;
 
-    // Show existing images if available
-    if (banner.bannerFileOne) {
-        this.showExistingImage(this.previewOne, banner.bannerFileOne, 'jpeg');
+        // Show existing images if available
+        if (banner.bannerFileOne) {
+            this.showExistingMultipleImages(this.previewOne, banner.bannerFileOne, 'jpeg');
+        }
+        if (banner.bannerFileTwo) {
+            this.showExistingImage(this.previewTwo, banner.bannerFileTwo, 'jpeg');
+        }
+        if (banner.bannerFileThree) {
+            this.showExistingImage(this.previewThree, banner.bannerFileThree, 'jpeg');
+        }
+        if (banner.bannerFileFour) {
+            this.showExistingImage(this.previewFour, banner.bannerFileFour, 'jpeg');
+        }
     }
-    if (banner.bannerFileTwo) {
-        this.showExistingImage(this.previewTwo, banner.bannerFileTwo, 'jpeg');
-    }
-    if (banner.bannerFileThree) {
-        this.showExistingImage(this.previewThree, banner.bannerFileThree, 'jpeg');
-    }
-    if (banner.bannerFileFour) {
-        this.showExistingImage(this.previewFour, banner.bannerFileFour, 'jpeg');
-    }
-}
 
-showExistingImage(previewElement, imageData, imageType = 'jpeg') {
-    let src;
-    if (typeof imageData === 'string' && imageData.startsWith('data:')) {
-        src = imageData;
-    } else {
-        src = `data:image/${imageType};base64,${imageData}`;
+    showExistingMultipleImages(previewElement, imageData, imageType = 'jpeg') {
+        let html = '';
+        
+        if (Array.isArray(imageData)) {
+            imageData.forEach((image, index) => {
+                let src;
+                if (typeof image === 'string' && image.startsWith('data:')) {
+                    src = image;
+                } else {
+                    src = `data:image/${imageType};base64,${image}`;
+                }
+                html += `<div class="existing-image-preview">
+                    <img src="${src}" alt="Current Image ${index + 1}">
+                    <span class="image-label">Image ${index + 1}</span>
+                </div>`;
+            });
+        } else if (typeof imageData === 'string') {
+            // Handle single image (backward compatibility)
+            let src;
+            if (imageData.startsWith('data:')) {
+                src = imageData;
+            } else {
+                src = `data:image/${imageType};base64,${imageData}`;
+            }
+            html = `<div class="existing-image-preview">
+                <img src="${src}" alt="Current Image">
+                <span class="image-label">Current Image</span>
+            </div>`;
+        }
+        
+        previewElement.innerHTML = html;
+        previewElement.style.display = 'block';
     }
-    previewElement.innerHTML = `<img src="${src}" alt="Current Image">`;
-    previewElement.style.display = 'block';
-}
+
+    showExistingImage(previewElement, imageData, imageType = 'jpeg') {
+        let src;
+        if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+            src = imageData;
+        } else {
+            src = `data:image/${imageType};base64,${imageData}`;
+        }
+        previewElement.innerHTML = `<img src="${src}" alt="Current Image">`;
+        previewElement.style.display = 'block';
+    }
 
     clearPreviews() {
         [this.previewOne, this.previewTwo, this.previewThree, this.previewFour].forEach(preview => {
             preview.innerHTML = '';
             preview.style.display = 'none';
         });
+    }
+
+    previewMultipleImages(input, previewElement) {
+        if (input.files && input.files.length > 0) {
+            // Check file limit
+            if (input.files.length > this.maxImagesForBannerOne) {
+                this.showError(`Maximum ${this.maxImagesForBannerOne} images allowed for Banner Images Set 1`);
+                input.value = '';
+                previewElement.innerHTML = '';
+                previewElement.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            const fileArray = Array.from(input.files);
+            let loadedCount = 0;
+
+            fileArray.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    html += `<div class="image-preview-item">
+                        <img src="${e.target.result}" alt="Preview ${index + 1}">
+                        <span class="image-label">Image ${index + 1}</span>
+                    </div>`;
+                    
+                    loadedCount++;
+                    if (loadedCount === fileArray.length) {
+                        previewElement.innerHTML = html;
+                        previewElement.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewElement.innerHTML = '';
+            previewElement.style.display = 'none';
+        }
     }
 
     previewImage(input, previewElement) {
@@ -290,6 +392,12 @@ showExistingImage(previewElement, imageData, imageType = 'jpeg') {
 
     async submitForm() {
         try {
+            // Validate bannerFileOne file count
+            if (this.bannerFileOne.files.length > this.maxImagesForBannerOne) {
+                this.showError(`Maximum ${this.maxImagesForBannerOne} images allowed for Banner Images Set 1`);
+                return;
+            }
+
             this.submitBtn.disabled = true;
             this.submitBtn.textContent = 'Saving...';
 
@@ -306,10 +414,14 @@ showExistingImage(previewElement, imageData, imageType = 'jpeg') {
                 type: 'application/json'
             }));
 
-            // Add files if selected
-            if (this.bannerFileOne.files[0]) {
-                formData.append('bannerFileOne', this.bannerFileOne.files[0]);
+            // Add multiple files for bannerFileOne
+            if (this.bannerFileOne.files && this.bannerFileOne.files.length > 0) {
+                Array.from(this.bannerFileOne.files).forEach((file, index) => {
+                    formData.append('bannerFileOne', file);
+                });
             }
+
+            // Add single files for other banner fields
             if (this.bannerFileTwo.files[0]) {
                 formData.append('bannerFileTwo', this.bannerFileTwo.files[0]);
             }

@@ -1,479 +1,516 @@
- // API Base URL - Update this according to your backend server
-        const BASE_URL = 'http://localhost:8080/api/admin';
+// Global variables
+        let admins = [];
+        let filteredAdmins = [];
+        let currentAdminId = null;
+        let isEditMode = false;
+        let searchTimeout = null;
+        let confirmCallback = null;
 
-        // Store original table data
-        let originalTableData = [];
+        // API base URL
+        const API_BASE_URL = 'http://localhost:8080/api/admin';
 
-        // Initialize submenu toggles
-        function setupSubmenuToggle(toggleId, submenuId) {
-            const toggle = document.getElementById(toggleId);
-            const submenu = document.getElementById(submenuId);
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdmins();
+            setupEventListeners();
+        });
 
-            if (toggle && submenu) {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const isVisible = submenu.style.display === 'block';
-                    submenu.style.display = isVisible ? 'none' : 'block';
-                    this.classList.toggle('fa-chevron-up');
-                    this.classList.toggle('fa-chevron-down');
-                });
-            }
-        }
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search input with 3-letter delay
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterAdmins();
+                }, 300);
+            });
 
-        // Setup export buttons
-        function setupExportButtons() {
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                if (item.textContent.includes('Excel')) {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        exportToExcel();
-                    });
-                } else if (item.textContent.includes('CSV')) {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        exportToCSV();
-                    });
+            // Role filter
+            document.getElementById('roleFilter').addEventListener('change', filterAdmins);
+
+            // Form submission
+            document.getElementById('adminForm').addEventListener('submit', handleFormSubmit);
+
+            // Close overlays when clicking outside
+            document.getElementById('adminFormOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAdminForm();
+                }
+            });
+
+            document.getElementById('confirmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeConfirmModal();
                 }
             });
         }
 
-        // Loading spinner control
-        function showLoading(show) {
-            const spinner = document.getElementById('loadingSpinner');
-            const table = document.querySelector('.table-responsive');
+        // Navigation functions
+        // function toggleLeftNav() {
+        //     const leftNav = document.getElementById('leftNavbar');
+        //     const mainContent = document.getElementById('mainContent');
+        //     const overlay = document.getElementById('overlay');
 
-            if (spinner && table) {
-                spinner.style.display = show ? 'block' : 'none';
-                table.style.display = show ? 'none' : 'block';
-            }
-        }
+        //     leftNav.classList.toggle('active');
+        //     if (window.innerWidth > 768) {
+        //         mainContent.classList.toggle('shifted');
+        //     }
+            
+        //     if (leftNav.classList.contains('active') && window.innerWidth <= 768) {
+        //         overlay.style.display = 'block';
+        //     } else {
+        //         overlay.style.display = 'none';
+        //     }
+        // }
 
-        // Initialize original table data for reset functionality
-        function initOriginalTableData() {
-            const table = document.querySelector('table');
-            if (table) {
-                const rows = table.querySelectorAll('tbody tr');
-                originalTableData = Array.from(rows).map(row => row.innerHTML);
-            }
-        }
+        // function toggleDropdown() {
+        //     const dropdown = document.getElementById('profileDropdown');
+        //     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        // }
 
-        // Database connectivity functions
-        async function loadAdminData() {
-            showLoading(true);
+        // function toggleSubMenu(menuId) {
+        //     const menu = document.getElementById(menuId + 'Menu');
+        //     const arrow = document.getElementById(menuId + 'Arrow');
+            
+        //     menu.classList.toggle('active');
+        //     arrow.classList.toggle('rotated');
+        // }
+
+
+
+        // Close dropdown when clicking outside
+        // document.addEventListener('click', function(e) {
+        //     if (!e.target.closest('.nav-right')) {
+        //         document.getElementById('profileDropdown').style.display = 'none';
+        //     }
+        //     if (!e.target.closest('.left-navbar') && !e.target.closest('.menu-icon')) {
+        //         document.getElementById('overlay').style.display = 'none';
+        //         document.getElementById('leftNavbar').classList.remove('active');
+        //         document.getElementById('mainContent').classList.remove('shifted');
+        //     }
+        // });
+
+        // API functions
+        async function loadAdmins() {
             try {
-
-                const response = await fetch(`${BASE_URL}/get-all-admins`);
-
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/get-all-admins`);
                 if (response.ok) {
-                    const admins = await response.json();
-                    populateAdminTable(admins);
-                    initOriginalTableData();
+                    admins = await response.json();
+                    filteredAdmins = [...admins];
+                    renderAdmins();
                 } else {
-                    console.error('Failed to fetch admins:', response.statusText);
-                    showError('Failed to load admin data');
+                    throw new Error('Failed to load admins');
                 }
             } catch (error) {
-                console.error('Error fetching admins:', error);
-                showError('Error connecting to server');
+                console.error('Error loading admins:', error);
+                alert('Error loading admins. Please try again.');
             } finally {
                 showLoading(false);
             }
         }
 
-        function populateAdminTable(admins) {
-            const tableBody = document.getElementById('adminTableBody');
-            if (!tableBody) {
-                console.error('Table body element not found');
+        async function createAdmin(adminData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/create-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (response.ok) {
+                    const newAdmin = await response.json();
+                    admins.push(newAdmin);
+                    filterAdmins();
+                    closeAdminForm();
+                    alert('Admin created successfully!');
+                } else {
+                    throw new Error('Failed to create admin');
+                }
+            } catch (error) {
+                console.error('Error creating admin:', error);
+                alert('Error creating admin. Please try again.');
+            }
+        }
+
+        async function updateAdmin(id, adminData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/update-admin/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                if (response.ok) {
+                    const updatedAdmin = await response.json();
+                    const index = admins.findIndex(admin => admin.id === id);
+                    if (index !== -1) {
+                        admins[index] = updatedAdmin;
+                    }
+                    filterAdmins();
+                    closeAdminForm();
+                    alert('Admin updated successfully!');
+                } else {
+                    throw new Error('Failed to update admin');
+                }
+            } catch (error) {
+                console.error('Error updating admin:', error);
+                alert('Error updating admin. Please try again.');
+            }
+        }
+
+        async function deleteAdmin(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/delete-admin/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    admins = admins.filter(admin => admin.id !== id);
+                    filterAdmins();
+                    alert('Admin deleted successfully!');
+                } else {
+                    throw new Error('Failed to delete admin');
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                alert('Error deleting admin. Please try again.');
+            }
+        }
+
+        // UI functions
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const tableSection = document.querySelector('.table-section');
+            
+            if (show) {
+                loading.style.display = 'block';
+                tableSection.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                tableSection.style.display = 'block';
+            }
+        }
+
+        function renderAdmins() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredAdmins.length === 0) {
+                // Continuation of renderAdmins() function
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No admins found</td></tr>';
                 return;
             }
 
-            tableBody.innerHTML = '';
-
-            admins.forEach(admin => {
+            filteredAdmins.forEach(admin => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${admin.id}</td>
                     <td>${admin.name}</td>
                     <td>${admin.email}</td>
-                    <td>••••••••</td>
+                    <td><span class="role-badge">${admin.role}</span></td>
                     <td>${formatDate(admin.createdAt)}</td>
                     <td>${formatDate(admin.updatedAt)}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    <td class="actions-cell">
+                        <button class="btn btn-sm btn-warning" onclick="editAdmin(${admin.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete(${admin.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 `;
-                tableBody.appendChild(row);
+                tbody.appendChild(row);
             });
+        }
+
+        function filterAdmins() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+
+            filteredAdmins = admins.filter(admin => {
+                const matchesSearch = admin.name.toLowerCase().includes(searchTerm) ||
+                                    admin.email.toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter || admin.role === roleFilter;
+                return matchesSearch && matchesRole;
+            });
+
+            renderAdmins();
         }
 
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
-        function showError(message) {
-            alert(message);
+        // Form functions
+        function openAddAdminForm() {
+            isEditMode = false;
+            currentAdminId = null;
+            document.getElementById('formTitle').textContent = 'Add Admin';
+            document.getElementById('submitBtn').textContent = 'Add Admin';
+            document.getElementById('adminForm').reset();
+            document.getElementById('adminFormOverlay').style.display = 'flex';
         }
 
-        async function addNewAdmin() {
-            const nameInput = document.getElementById('adminName');
-            const emailInput = document.getElementById('adminEmail');
-            const passwordInput = document.getElementById('adminPassword');
+        function editAdmin(id) {
+            const admin = admins.find(a => a.id === id);
+            if (!admin) return;
 
-            if (!nameInput || !emailInput || !passwordInput) {
-                alert('Form fields not found');
-                return;
-            }
-
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            if (!name || !email || !password) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            try {
-                // Check if admin exists by email
-                const existsResponse = await fetch(`${BASE_URL}/exists/${encodeURIComponent(email)}`);
-                const exists = await existsResponse.json();
-
-                if (exists) {
-                    alert('Admin with this email already exists');
-                    return;
-                }
-
-                const adminData = { name, email, password };
-
-                const response = await fetch(`${BASE_URL}/create-admin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(adminData)
-                });
-
-                if (response.ok) {
-                    alert('Admin added successfully!');
-                    document.getElementById('addAdminForm').reset();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addAdminModal'));
-                    if (modal) {
-                        modal.hide();
-                    }
-                    loadAdminData();
-                } else {
-                    const error = await response.text();
-                    alert('Failed to add admin: ' + error);
-                }
-            } catch (error) {
-                console.error('Error adding admin:', error);
-                alert('Error connecting to server');
-            }
+            isEditMode = true;
+            currentAdminId = id;
+            document.getElementById('formTitle').textContent = 'Edit Admin';
+            document.getElementById('submitBtn').textContent = 'Update Admin';
+            
+            document.getElementById('adminName').value = admin.name;
+            document.getElementById('adminEmail').value = admin.email;
+            document.getElementById('adminRole').value = admin.role;
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').placeholder = 'Leave empty to keep current password';
+            
+            document.getElementById('adminFormOverlay').style.display = 'flex';
         }
 
-        // Admin table edit functionality
-        function enableRowEditing(row) {
-            const cells = row.cells;
-            const adminId = cells[0].textContent;
-
-            // Make name and email editable
-            cells[1].contentEditable = true;
-            cells[2].contentEditable = true;
-            cells[1].style.backgroundColor = '#fff8e1';
-            cells[2].style.backgroundColor = '#fff8e1';
-
-            // Change buttons to Save/Cancel
-            const actionCell = cells[cells.length - 1];
-            actionCell.innerHTML = `
-                <button class="btn btn-sm btn-success me-1" onclick="saveRowChanges(this, ${adminId})"><i class="fas fa-check"></i></button>
-                <button class="btn btn-sm btn-secondary" onclick="cancelRowEditing(this)"><i class="fas fa-times"></i></button>
-            `;
+        function closeAdminForm() {
+            document.getElementById('adminFormOverlay').style.display = 'none';
+            document.getElementById('adminForm').reset();
+            document.getElementById('adminPassword').placeholder = '';
+            isEditMode = false;
+            currentAdminId = null;
         }
 
-        async function saveRowChanges(btn, adminId) {
-            const row = btn.closest('tr');
-            const cells = row.cells;
-
-            const updatedData = {
-                name: cells[1].textContent.trim(),
-                email: cells[2].textContent.trim()
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('adminName').value,
+                email: document.getElementById('adminEmail').value,
+                role: document.getElementById('adminRole').value
             };
 
-            try {
-                const response = await fetch(`${BASE_URL}/${adminId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedData)
-                });
+            const password = document.getElementById('adminPassword').value;
+            if (password || !isEditMode) {
+                formData.password = password;
+            }
 
-                if (response.ok) {
-                    resetEditingState(cells);
-                    alert('Admin updated successfully!');
-                    loadAdminData();
-                } else {
-                    alert('Failed to update admin');
-                    cancelRowEditing(btn);
-                }
-            } catch (error) {
-                console.error('Error updating admin:', error);
-                alert('Error connecting to server');
-                cancelRowEditing(btn);
+            if (isEditMode) {
+                updateAdmin(currentAdminId, formData);
+            } else {
+                createAdmin(formData);
             }
         }
 
-        function cancelRowEditing(btn) {
-            const row = btn.closest('tr');
-            const cells = row.cells;
-            resetEditingState(cells);
+        // Confirmation modal functions
+        function confirmDelete(id) {
+            const admin = admins.find(a => a.id === id);
+            if (!admin) return;
+
+            document.getElementById('confirmMessage').textContent = 
+                `Are you sure you want to delete admin "${admin.name}"? This action cannot be undone.`;
+            document.getElementById('confirmModal').style.display = 'flex';
+            
+            confirmCallback = () => {
+                deleteAdmin(id);
+                closeConfirmModal();
+            };
         }
 
-        function resetEditingState(cells) {
-            cells[1].contentEditable = false;
-            cells[2].contentEditable = false;
-            cells[1].style.backgroundColor = '';
-            cells[2].style.backgroundColor = '';
-
-            const actionCell = cells[cells.length - 1];
-            actionCell.innerHTML = `
-                <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-            `;
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            confirmCallback = null;
         }
 
-        async function deleteRow(btn) {
-            if (confirm('Are you sure you want to delete this admin?')) {
-                const row = btn.closest('tr');
-                const adminId = row.cells[0].textContent;
-
-                try {
-                    const response = await fetch(`${BASE_URL}/${adminId}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (response.ok) {
-                        alert('Admin deleted successfully!');
-                        loadAdminData();
-                    } else {
-                        alert('Failed to delete admin');
-                    }
-                } catch (error) {
-                    console.error('Error deleting admin:', error);
-                    alert('Error connecting to server');
-                }
+        function confirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
             }
         }
 
-        // Filter table functionality
-        function filterTable() {
-            const searchInput = document.querySelector('.form-control');
-            if (!searchInput) {
-                alert('Search input not found');
-                return;
-            }
-
-            const searchTerm = searchInput.value.trim().toLowerCase();
-
-            if (!searchTerm) {
-                alert('Please enter a search term');
-                return;
-            }
-
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            let hasMatches = false;
-
-            rows.forEach(row => {
-                const cells = row.cells;
-                const id = cells[0].textContent.toLowerCase();
-                const name = cells[1].textContent.toLowerCase();
-                const email = cells[2].textContent.toLowerCase();
-
-                if (id.includes(searchTerm) || name.includes(searchTerm) || email.includes(searchTerm)) {
-                    row.style.display = '';
-                    hasMatches = true;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            if (!hasMatches) {
-                alert('No matching records found');
-            }
-        }
-
-        // Reset table to original state
-        function resetTable() {
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            const searchInput = document.querySelector('.form-control');
-
-            rows.forEach((row, index) => {
-                row.style.display = '';
-                if (originalTableData[index]) {
-                    row.innerHTML = originalTableData[index];
-                }
-            });
-
-            if (searchInput) {
-                searchInput.value = '';
-            }
-        }
-
-        // Export to Excel
+        // Export function
         function exportToExcel() {
-            try {
-                if (typeof XLSX === 'undefined') {
-                    alert('XLSX library not loaded. Please check your internet connection and try again.');
-                    return;
-                }
-
-                const table = document.querySelector('.table-responsive table');
-                if (!table) {
-                    alert('Table not found');
-                    return;
-                }
-
-                const workbook = XLSX.utils.table_to_book(table, { sheet: "Admin Details" });
-                XLSX.writeFile(workbook, 'admin_details_export.xlsx');
-            } catch (error) {
-                console.error('Error exporting to Excel:', error);
-                alert('Error exporting to Excel. Please try again.');
+            if (filteredAdmins.length === 0) {
+                alert('No data to export');
+                return;
             }
-        }
 
-        // Export to CSV
-        function exportToCSV() {
-            try {
-                if (typeof XLSX === 'undefined') {
-                    alert('XLSX library not loaded. Please check your internet connection and try again.');
-                    return;
-                }
+            const headers = ['ID', 'Name', 'Email', 'Role', 'Created At', 'Updated At'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredAdmins.map(admin => [
+                    admin.id,
+                    `"${admin.name}"`,
+                    `"${admin.email}"`,
+                    admin.role,
+                    `"${formatDate(admin.createdAt)}"`,
+                    `"${formatDate(admin.updatedAt)}"`
+                ].join(','))
+            ].join('\n');
 
-                const table = document.querySelector('.table-responsive table');
-                if (!table) {
-                    alert('Table not found');
-                    return;
-                }
-
-                const worksheet = XLSX.utils.table_to_sheet(table);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
-                
-                link.setAttribute("href", url);
-                link.setAttribute("download", "admin_details_export.csv");
+                link.setAttribute('href', url);
+                link.setAttribute('download', `admins_${new Date().toISOString().split('T')[0]}.csv`);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            } catch (error) {
-                console.error('Error exporting to CSV:', error);
-                alert('Error exporting to CSV. Please try again.');
             }
         }
 
-        // // DOM Content Loaded Event
-        document.addEventListener('DOMContentLoaded', function() {
-       
-
-            // Close profile menu when clicking outside
-            document.addEventListener('click', function() {
-                const profileMenu = document.getElementById('profileMenu');
-                if (profileMenu) profileMenu.style.display = 'none';
-            });
-
-            // Event delegation for table buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.btn-warning') && !e.target.closest('.btn-success')) {
-                    const row = e.target.closest('tr');
-                    if (row) enableRowEditing(row);
-                }
-
-                if (e.target.closest('.btn-danger')) {
-                    deleteRow(e.target.closest('.btn-danger'));
-                }
-            });
-
-            // Filter and reset button event listeners
-            const filterBtn = document.getElementById('filterBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const searchInput = document.querySelector('.form-control');
-
-            if (filterBtn) filterBtn.addEventListener('click', filterTable);
-            if (resetBtn) resetBtn.addEventListener('click', resetTable);
-            if (searchInput) {
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') filterTable();
-                });
-            }
-        });
-
-        // Navigation functions
-        function toggleLeftNav() {
-            const leftNav = document.getElementById('leftNavbar');
-            const mainContent = document.getElementById('mainContent');
-           
-            leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
-        }
- 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
-        }
- 
-        function toggleSubMenu(menuId) {
-            const menu = document.getElementById(menuId + 'Menu');
-            const arrow = document.getElementById(menuId + 'Arrow');
-           
-            menu.classList.toggle('show');
-            arrow.classList.toggle('rotated');
-        }
- 
-    
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profileDropdown');
-            const profileIcon = document.querySelector('.profile-icon');
-           
-            if (!profileIcon.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
- 
- 
- 
-        // Close left navigation when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const leftNav = document.getElementById('leftNavbar');
-            const menuIcon = document.querySelector('.menu-icon');
-            const mainContent = document.getElementById('mainContent');
-           
-            if (window.innerWidth <= 768 && leftNav.classList.contains('open') &&
-                !leftNav.contains(event.target) && !menuIcon.contains(event.target)) {
-                leftNav.classList.remove('open');
-                mainContent.classList.remove('shifted');
-            }
-        });
- 
         // Handle window resize
         window.addEventListener('resize', function() {
             const leftNav = document.getElementById('leftNavbar');
             const mainContent = document.getElementById('mainContent');
-           
+            const overlay = document.getElementById('overlay');
+            
             if (window.innerWidth > 768) {
-                // Reset mobile-specific classes on desktop
-                if (leftNav.classList.contains('open')) {
+                if (leftNav.classList.contains('active')) {
                     mainContent.classList.add('shifted');
                 }
+                overlay.style.display = 'none';
             } else {
-                // On mobile, remove shifted class
                 mainContent.classList.remove('shifted');
+                if (leftNav.classList.contains('active')) {
+                    overlay.style.display = 'block';
+                }
             }
         });
+
+
+//----------------- Navigation functions -------------------//
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize navigation state based on screen size
+    const leftNav = document.getElementById('leftNavbar');
+    const mainContent = document.querySelector('.main-content'); // Changed from getElementById
+    
+    // Set initial state based on screen width
+    if (window.innerWidth > 768) {
+        leftNav?.classList.add('open');
+        mainContent?.classList.add('shifted');
+    }
+
+    // Initialize dropdown menus
+    document.querySelectorAll('.nav-link[onclick^="toggleSubMenu"]').forEach(link => {
+        const menuId = link.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const menu = document.getElementById(menuId + 'Menu');
+        if (window.location.href.includes(menuId.toLowerCase())) {
+            menu?.classList.add('show');
+            document.getElementById(menuId + 'Arrow')?.classList.add('rotated');
+        }
+    });
+});
+
+function toggleLeftNav() {
+    const leftNav = document.getElementById('leftNavbar');
+    const mainContent = document.querySelector('.main-content');
+    const overlay = document.getElementById('overlay');
+    
+    if (!leftNav || !mainContent || !overlay) {
+        console.error('Navigation elements not found');
+        return;
+    }
+
+    // Toggle navigation and overlay
+    leftNav.classList.toggle('open');
+    overlay.style.display = leftNav.classList.contains('open') ? 'block' : 'none';
+    
+    // Only shift content on desktop
+    if (window.innerWidth > 768) {
+        mainContent.classList.toggle('shifted');
+    }
+    
+    // Close any open dropdown menus when toggling nav
+    if (!leftNav.classList.contains('open')) {
+        document.getElementById('profileDropdown')?.classList.remove('show');
+    }
+}
+
+function toggleDropdown() {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+function toggleSubMenu(menuId) {
+    const menu = document.getElementById(menuId + 'Menu');
+    const arrow = document.getElementById(menuId + 'Arrow');
+    
+    if (menu && arrow) {
+        menu.classList.toggle('show');
+        arrow.classList.toggle('rotated');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('profileDropdown');
+    const profileIcon = document.querySelector('.profile-icon');
+    
+    if (dropdown && profileIcon && !profileIcon.contains(event.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+// Close left nav when clicking overlay
+document.getElementById('overlay')?.addEventListener('click', function() {
+    const leftNav = document.getElementById('leftNavbar');
+    const mainContent = document.querySelector('.main-content');
+    const overlay = document.getElementById('overlay');
+    
+    leftNav?.classList.remove('open');
+    mainContent?.classList.remove('shifted');
+    overlay.style.display = 'none';
+});
+
+// Close left navigation when clicking outside on mobile
+document.addEventListener('click', function(event) {
+    const leftNav = document.getElementById('leftNavbar');
+    const menuIcon = document.querySelector('.menu-icon');
+    const mainContent = document.querySelector('.main-content');
+    const overlay = document.getElementById('overlay');
+    
+    if (window.innerWidth <= 768 && leftNav?.classList.contains('open') &&
+        !leftNav.contains(event.target) && !menuIcon?.contains(event.target)) {
+        leftNav.classList.remove('open');
+        mainContent?.classList.remove('shifted');
+        overlay.style.display = 'none';
+    }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    const leftNav = document.getElementById('leftNavbar');
+    const mainContent = document.querySelector('.main-content');
+    const overlay = document.getElementById('overlay');
+    
+    if (window.innerWidth > 768) {
+        // On desktop, ensure nav is open
+        leftNav?.classList.add('open');
+        mainContent?.classList.add('shifted');
+        overlay.style.display = 'none';
+    } else {
+        // On mobile, reset to closed state
+        leftNav?.classList.remove('open');
+        mainContent?.classList.remove('shifted');
+        overlay.style.display = 'none';
+    }
+});
  
 function logout() {
     // Custom styled confirm dialog
@@ -535,8 +572,7 @@ function logout() {
         document.body.removeChild(logoutModal);
         document.body.appendChild(loaderOverlay);
         
-        // Perform logout operations (clear tokens, etc.)
-        localStorage.removeItem('authToken');
+    
         sessionStorage.clear();
         
         // Redirect after delay

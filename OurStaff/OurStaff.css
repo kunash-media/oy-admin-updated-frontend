@@ -109,6 +109,7 @@
         border: none;
         padding: 12px 16px;
         font-weight: 600;
+        background-color: #797a7b;
     }
 
     .table tbody td {

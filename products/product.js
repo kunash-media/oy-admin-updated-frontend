@@ -20,10 +20,6 @@
             arrow.classList.toggle('rotated');
         }
  
-        function logout() {
-            alert('Logging out...');
-            // Implement logout logic here
-        }
  
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
