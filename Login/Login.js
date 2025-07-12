@@ -46,33 +46,64 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Mock login for testing (remove in production)
-        console.log('Mock login - would send:', { username, password });
-        window.location.href = "../Dashboard/Dashboard.html";
-        return;
-
-        // Actual API code (commented out for now)
-        
+        // API Login Implementation
         try {
-            const existsResponse = await fetch(`/api/admin/exists/${username}`);
-            if (!existsResponse.ok) throw new Error('API unavailable');
-            
-            const exists = await existsResponse.json();
-            if (!exists) {
-                alert("Admin not found. Please check your username.");
-                return;
+            // Call the login API
+            const response = await fetch('http://localhost:8080/api/admin/login-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: username,
+                    password: password
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Login failed: ${response.status}`);
             }
 
-            const adminResponse = await fetch(`/api/admin/email/${username}`);
-            if (!adminResponse.ok) throw new Error('Admin data fetch failed');
+            const adminData = await response.json();
             
-            // If everything succeeds
+            // Store session using admin-global-js
+            if (window.AdminSession) {
+                window.AdminSession.setSession(adminData);
+                console.log('Session stored for admin:', adminData.name);
+            } else {
+                console.error('AdminSession not available');
+            }
+
+            // Redirect to dashboard
             window.location.href = "../Dashboard/Dashboard.html";
             
         } catch (error) {
             console.error("Login error:", error);
-            alert("Login failed. Please try again.");
+            alert("Login failed. Please check your credentials and try again.");
+        }
+
+        // Mock login for testing (comment out the API code above and uncomment below for testing)
+        /*
+        console.log('Mock login - would send:', { username, password });
+        
+        // Mock admin data for testing
+        const mockAdminData = {
+            id: 9,
+            name: "Test Admin",
+            mobileNumber: "1234567890",
+            email: username,
+            role: "ADMIN",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        // Store mock session
+        if (window.AdminSession) {
+            window.AdminSession.setSession(mockAdminData);
+            console.log('Mock session stored for admin:', mockAdminData.name);
         }
         
+        window.location.href = "../Dashboard/Dashboard.html";
+        */
     });
-});
+}); 

@@ -1,176 +1,457 @@
-// Your backend server URL - CHANGE THIS to your actual server URL
-        const API_BASE_URL = 'http://localhost:8080'; // Change port if different
+// Backend API Configuration
+const API_BASE_URL = 'http://localhost:8080';
+const API_ENDPOINT = `${API_BASE_URL}/api/admin/create-admin`;
 
-        function validatePassword() {
-            let password = document.getElementById("password");
-            if (/^[a-zA-Z0-9]+$/.test(password.value) && password.value.length >= 6) {
-                password.classList.add("valid");
-                password.classList.remove("invalid");
-            } else {
-                password.classList.add("invalid");
-                password.classList.remove("valid");
-            }
-        }
+// Form Elements
+const form = document.getElementById('registrationForm');
+const createBtn = document.getElementById('createBtn');
+const loadingSpinner = document.getElementById('loadingSpinner');
+const successMessage = document.getElementById('successMessage');
 
-        function checkPasswordMatch() {
-            let password = document.getElementById("password").value;
-            let confirmPassword = document.getElementById("confirm-password");
+// Form Fields
+const nameField = document.getElementById('name');
+const emailField = document.getElementById('email');
+const mobileField = document.getElementById('mobileNumber');
+const roleField = document.getElementById('role');
+const passwordField = document.getElementById('password');
+const confirmPasswordField = document.getElementById('confirmPassword');
+const privacyField = document.getElementById('privacyPolicy');
 
-            if (confirmPassword.value === password && confirmPassword.value.length >= 6) {
-                confirmPassword.classList.add("valid");
-                confirmPassword.classList.remove("invalid");
-            } else {
-                confirmPassword.classList.add("invalid");
-                confirmPassword.classList.remove("valid");
-            }
-        }
+// Error Elements
+const errorElements = {
+    name: document.getElementById('nameError'),
+    email: document.getElementById('emailError'),
+    mobile: document.getElementById('mobileError'),
+    role: document.getElementById('roleError'),
+    password: document.getElementById('passwordError'),
+    confirmPassword: document.getElementById('confirmPasswordError'),
+    policy: document.getElementById('policyError')
+};
 
-        function navigateToLogin(event) {
-    event.preventDefault();
-    
-    // First try the intended path
-    const intendedPath = '../Login/Login.html';
-    
-    // Create a test request to check if file exists
-    fetch(intendedPath)
-        .then(response => {
-            if (response.ok) {
-                window.location.href = intendedPath;
-            } else {
-                // Fallback to alternative paths
-                const fallbackPaths = [
-                    '../Login.html',
-                    './Login/Login.html',
-                    'Login.html'
-                ];
-                
-                // Try each fallback path sequentially
-                return tryFallbackPaths(fallbackPaths);
-            }
-        })
-        .catch(() => {
-            alert('Could not find login page. Please contact support.');
-        });
+// Validation Functions
+function validateName(name) {
+    const trimmed = name.trim();
+    if (trimmed.length === 0) {
+        return 'Name is required';
+    }
+    if (trimmed.length < 2) {
+        return 'Name must be at least 2 characters long';
+    }
+    if (!/^[a-zA-Z\s]+$/.test(trimmed)) {
+        return 'Name can only contain letters and spaces';
+    }
+    return null;
 }
 
-function tryFallbackPaths(paths, index = 0) {
-    if (index >= paths.length) {
-        alert('Login page not found at any expected location.');
-        return Promise.reject();
+function validateEmail(email) {
+    const trimmed = email.trim();
+    if (trimmed.length === 0) {
+        return 'Email is required';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+        return 'Please enter a valid email address';
+    }
+    return null;
+}
+
+function validateMobile(mobile) {
+    const trimmed = mobile.trim();
+    if (trimmed.length === 0) {
+        return 'Mobile number is required';
+    }
+    if (!/^\d{10}$/.test(trimmed)) {
+        return 'Mobile number must be exactly 10 digits';
+    }
+    return null;
+}
+
+function validateRole(role) {
+    if (!role || role.trim() === '') {
+        return 'Please select a role';
+    }
+    const validRoles = ['ADMIN', 'CASHIER', 'ACCOUNTANT'];
+    if (!validRoles.includes(role)) {
+        return 'Please select a valid role';
+    }
+    return null;
+}
+
+function validatePassword(password) {
+    if (password.length === 0) {
+        return 'Password is required';
+    }
+    if (password.length < 6) {
+        return 'Password must be at least 6 characters long';
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(password)) {
+        return 'Password can only contain letters and numbers';
+    }
+    return null;
+}
+
+function validateConfirmPassword(password, confirmPassword) {
+    if (confirmPassword.length === 0) {
+        return 'Please confirm your password';
+    }
+    if (password !== confirmPassword) {
+        return 'Passwords do not match';
+    }
+    return null;
+}
+
+function validatePrivacyPolicy(checked) {
+    if (!checked) {
+        return 'You must agree to the privacy policy and terms of service';
+    }
+    return null;
+}
+
+// UI Helper Functions
+function showError(field, message) {
+    const errorElement = errorElements[field];
+    const inputElement = document.getElementById(field === 'mobile' ? 'mobileNumber' : field === 'confirmPassword' ? 'confirmPassword' : field);
+    
+    if (errorElement && inputElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+        inputElement.classList.add('is-invalid');
+        inputElement.classList.remove('is-valid');
+    }
+}
+
+function hideError(field) {
+    const errorElement = errorElements[field];
+    const inputElement = document.getElementById(field === 'mobile' ? 'mobileNumber' : field === 'confirmPassword' ? 'confirmPassword' : field);
+    
+    if (errorElement && inputElement) {
+        errorElement.classList.remove('show');
+        inputElement.classList.remove('is-invalid');
+        inputElement.classList.add('is-valid');
+    }
+}
+
+function clearAllErrors() {
+    Object.keys(errorElements).forEach(field => {
+        const errorElement = errorElements[field];
+        const inputElement = document.getElementById(field === 'mobile' ? 'mobileNumber' : field === 'confirmPassword' ? 'confirmPassword' : field);
+        
+        if (errorElement) {
+            errorElement.classList.remove('show');
+        }
+        if (inputElement) {
+            inputElement.classList.remove('is-invalid', 'is-valid');
+        }
+    });
+}
+
+function setLoadingState(isLoading) {
+    if (isLoading) {
+        createBtn.disabled = true;
+        createBtn.classList.add('loading');
+        document.querySelector('.account-form').classList.add('loading');
+    } else {
+        createBtn.disabled = false;
+        createBtn.classList.remove('loading');
+        document.querySelector('.account-form').classList.remove('loading');
+    }
+}
+
+function showSuccessMessage() {
+    form.style.display = 'none';
+    successMessage.classList.add('show');
+}
+
+function resetForm() {
+    form.reset();
+    clearAllErrors();
+}
+
+// Real-time Validation
+nameField.addEventListener('blur', function() {
+    const error = validateName(this.value);
+    if (error) {
+        showError('name', error);
+    } else {
+        hideError('name');
+    }
+});
+
+emailField.addEventListener('blur', function() {
+    const error = validateEmail(this.value);
+    if (error) {
+        showError('email', error);
+    } else {
+        hideError('email');
+    }
+});
+
+mobileField.addEventListener('blur', function() {
+    const error = validateMobile(this.value);
+    if (error) {
+        showError('mobile', error);
+    } else {
+        hideError('mobile');
+    }
+});
+
+roleField.addEventListener('change', function() {
+    const error = validateRole(this.value);
+    if (error) {
+        showError('role', error);
+    } else {
+        hideError('role');
+    }
+});
+
+passwordField.addEventListener('input', function() {
+    const error = validatePassword(this.value);
+    if (error) {
+        showError('password', error);
+    } else {
+        hideError('password');
     }
     
-    return fetch(paths[index])
-        .then(response => {
-            if (response.ok) {
-                window.location.href = paths[index];
-                return Promise.resolve();
-            } else {
-                return tryFallbackPaths(paths, index + 1);
-            }
+    // Also validate confirm password if it has a value
+    if (confirmPasswordField.value) {
+        const confirmError = validateConfirmPassword(this.value, confirmPasswordField.value);
+        if (confirmError) {
+            showError('confirmPassword', confirmError);
+        } else {
+            hideError('confirmPassword');
+        }
+    }
+});
+
+confirmPasswordField.addEventListener('blur', function() {
+    const error = validateConfirmPassword(passwordField.value, this.value);
+    if (error) {
+        showError('confirmPassword', error);
+    } else {
+        hideError('confirmPassword');
+    }
+});
+
+privacyField.addEventListener('change', function() {
+    const error = validatePrivacyPolicy(this.checked);
+    if (error) {
+        showError('policy', error);
+    } else {
+        hideError('policy');
+    }
+});
+
+// Form Submission
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Clear all previous errors
+    clearAllErrors();
+    
+    // Get form values
+    const formData = {
+        name: nameField.value.trim(),
+        email: emailField.value.trim(),
+        mobileNumber: mobileField.value.trim(),
+        role: roleField.value,
+        password: passwordField.value,
+        confirmPassword: confirmPasswordField.value,
+        privacyPolicy: privacyField.checked
+    };
+    
+    // Validate all fields
+    let hasErrors = false;
+    
+    const nameError = validateName(formData.name);
+    if (nameError) {
+        showError('name', nameError);
+        hasErrors = true;
+    }
+    
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+        showError('email', emailError);
+        hasErrors = true;
+    }
+    
+    const mobileError = validateMobile(formData.mobileNumber);
+    if (mobileError) {
+        showError('mobile', mobileError);
+        hasErrors = true;
+    }
+    
+    const roleError = validateRole(formData.role);
+    if (roleError) {
+        showError('role', roleError);
+        hasErrors = true;
+    }
+    
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+        showError('password', passwordError);
+        hasErrors = true;
+    }
+    
+    const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword);
+    if (confirmPasswordError) {
+        showError('confirmPassword', confirmPasswordError);
+        hasErrors = true;
+    }
+    
+    const policyError = validatePrivacyPolicy(formData.privacyPolicy);
+    if (policyError) {
+        showError('policy', policyError);
+        hasErrors = true;
+    }
+    
+    // If there are validation errors, don't submit
+    if (hasErrors) {
+        return;
+    }
+    
+    // Prepare API payload (matching backend DTO structure)
+    const apiPayload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        mobileNumber: formData.mobileNumber  // Add this line
+    };
+    
+    // Set loading state
+    setLoadingState(true);
+    
+    try {
+        // Make API call
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apiPayload)
         });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Admin created successfully:', result);
+            
+            // Show success message
+            showSuccessMessage();
+            
+            // Redirect to login page after 3 seconds
+            setTimeout(() => {
+                navigateToLogin();
+            }, 3000);
+            
+        } else {
+            // Handle API errors
+            const errorData = await response.json();
+            let errorMessage = 'Failed to create account. Please try again.';
+            
+            if (errorData.message) {
+                errorMessage = errorData.message;
+            } else if (response.status === 400) {
+                errorMessage = 'Invalid data provided. Please check your inputs.';
+            } else if (response.status === 409) {
+                errorMessage = 'An account with this email already exists.';
+            } else if (response.status === 500) {
+                errorMessage = 'Server error. Please try again later.';
+            }
+            
+            alert(errorMessage);
+            console.error('API Error:', errorData);
+        }
+        
+    } catch (error) {
+        console.error('Network Error:', error);
+        alert('Network error. Please check your connection and ensure the server is running.');
+    } finally {
+        // Remove loading state
+        setLoadingState(false);
+    }
+});
+
+// Navigation Functions
+function navigateToLogin() {
+    // Try multiple potential paths for the login page
+    const loginPaths = [
+        '../Login/Login.html',
+        '../Login.html',
+        './Login/Login.html',
+        'Login.html'
+    ];
+    
+    // Try to navigate to the first available path
+    // In a real application, you might want to check if the file exists
+    // For now, we'll use the most likely path based on the HTML structure
+    window.location.href = loginPaths[0]; // '../Login/Login.html'
 }
 
-        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+// Additional utility functions
+function navigateToHome() {
+    window.location.href = '../Home/Home.html';
+}
 
-           
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const contact = document.getElementById("contact").value.trim();
-            const role = document.getElementById("role").value;
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirm-password").value;
-            const privacyPolicy = document.getElementById("privacy-policy").checked;
+function navigateToDashboard() {
+    window.location.href = '../Dashboard/Dashboard.html';
+}
 
-     
-            if (name === "") {
-                alert("Name cannot be empty");
-                return;
-            }
-            if (!email.includes("@") || email === "") {
-                alert("Please enter a valid email");
-                return;
-            }
-            if (!contact) {
-                alert("Please enter contact number");
-                return;
-            }
-            if (!role) {
-                alert("Please select a role");
-                return;
-            }
-            if (!/^[a-zA-Z0-9]+$/.test(password)) {
-                alert("Password must contain only alphanumeric characters");
-                return;
-            }
-            if (password.length < 6) {
-                alert("Password must be at least 6 characters long");
-                return;
-            }
-            if (password !== confirmPassword) {
-                alert("Passwords do not match");
-                return;
-            }
-            if (!privacyPolicy) {
-                alert("You must agree to the privacy policy");
-                return;
-            }
+// Handle browser back button
+window.addEventListener('popstate', function(event) {
+    // Handle back button if needed
+    console.log('Back button pressed');
+});
 
-            
-            const createBtn = document.getElementById('createBtn');
-            const originalText = createBtn.textContent;
-            createBtn.textContent = 'Creating...';
-            createBtn.disabled = true;
-            document.querySelector('.account-form').classList.add('loading');
+// Initialize the form when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear any existing form data
+    resetForm();
+    
+    // Focus on the name field
+    if (nameField) {
+        nameField.focus();
+    }
+    
+    // Hide success message on page load
+    if (successMessage) {
+        successMessage.classList.remove('show');
+    }
+    
+    // Ensure form is visible
+    if (form) {
+        form.style.display = 'block';
+    }
+});
 
-            try {
-               
-                const adminData = {
-                    name: name,
-                    email: email,
-                    contactNumber: contact,
-                    role: role,
-                    password: password
-                };
+// Handle page refresh/reload
+window.addEventListener('beforeunload', function(event) {
+    // You can add any cleanup code here if needed
+    console.log('Page is about to be refreshed/closed');
+});
 
-                // Send data to backend
-                const response = await fetch(`${API_BASE_URL}/api/admin/create-admin`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(adminData)
-                });
+// Additional helper function for form reset
+function resetFormToInitialState() {
+    resetForm();
+    setLoadingState(false);
+    
+    // Hide success message
+    if (successMessage) {
+        successMessage.classList.remove('show');
+    }
+    
+    // Show form
+    if (form) {
+        form.style.display = 'block';
+    }
+}
 
-                if (response.ok) {
-                    const result = await response.json();
-                    alert('Account created successfully!');
-
-                
-                    document.getElementById('registrationForm').reset();
-
-                    setTimeout(() => {
-                        window.location.href = '../Login/Login.html';
-                    }, 2000);
-
-                } else {
-                    const errorData = await response.json();
-                    alert('Error creating account: ' + (errorData.message || 'Please try again'));
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Network error. Please check if your server is running and try again.');
-
-                
-                setTimeout(() => {
-                    if (confirm('Would you like to go to the login page?')) {
-                        navigateToLogin(new Event('click'));
-                    }
-                }, 1000);
-            } finally {
-             e
-                createBtn.textContent = originalText;
-                createBtn.disabled = false;
-                document.querySelector('.account-form').classList.remove('loading');
-            }
-        });
+// Export functions if needed (for module systems)
+// Uncomment if using modules
+/*
+export {
+    navigateToLogin,
+    navigateToHome,
+    navigateToDashboard,
+    resetFormToInitialState
+};
+*/
