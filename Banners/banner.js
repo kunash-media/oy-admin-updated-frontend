@@ -160,9 +160,9 @@ class BannerManager {
 
         const tableHTML = this.filteredBanners.map(banner => `
         <tr>
-            <td>${this.escapeHtml(banner.pageName || '')}</td>
-            <td>${this.escapeHtml(banner.header || '')}</td>
-            <td>${this.escapeHtml(banner.text || '')}</td>
+            <td>${this.escapeHtml(banner.pageName || 'N/A')}</td>
+            <td>${this.escapeHtml(banner.header || 'N/A')}</td>
+            <td>${this.escapeHtml(banner.text || 'N/A')}</td>
             <td>${this.renderMultipleImageCell(banner.bannerFileOne, 'jpeg')}</td>
             <td>${this.renderImageCell(banner.bannerFileTwo, 'jpeg')}</td>
             <td>${this.renderImageCell(banner.bannerFileThree, 'jpeg')}</td>
@@ -405,9 +405,9 @@ class BannerManager {
 
             // Add text data
             const bannerData = {
-                pageName: this.pageNameInput.value,
-                header: this.headerInput.value,
-                text: this.textInput.value
+                pageName: this.pageNameInput.value  || '',
+                header: this.headerInput.value || '',
+                text: this.textInput.value || ''
             };
 
             formData.append('bannerData', new Blob([JSON.stringify(bannerData)], {

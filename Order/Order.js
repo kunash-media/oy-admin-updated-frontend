@@ -136,3 +136,241 @@
         }, 1500);
     });
 }
+
+//---------------------------main js---------------------------------------//
+let orders = [];
+let products = [];
+
+async function fetchData() {
+    try {
+        const [ordersResponse, productsResponse] = await Promise.all([
+            fetch('http://localhost:8080/api/orders/get-all-orders'),
+            fetch('http://localhost:8080/api/products/get-all-product')
+        ]);
+        
+        orders = await ordersResponse.json();
+        products = await productsResponse.json();
+        
+        // Sort by recent date
+        orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+        
+        displayOrders(orders);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        displayOrders([]); // Display empty table with "No Order Found" on error
+    }
+}
+
+function displayOrders(ordersToDisplay) {
+    const tbody = document.getElementById('ordersBody');
+    if (!tbody) {
+        console.error('Table body element not found');
+        return;
+    }
+    tbody.innerHTML = '';
+
+    if (ordersToDisplay.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="16" style="text-align: center; padding: 20px;">No Order Found</td>';
+        tbody.appendChild(row);
+        return;
+    }
+
+    ordersToDisplay.forEach(order => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="checkbox" class="order-checkbox" data-id="${order.orderId}"></td>
+            <td>${order.orderId}</td>
+            <td>${order.customerFirstName} ${order.customerLastName || ''}</td>
+            <td>${order.customerPhone}</td>
+            <td>${order.items.map(item => item.name).join(', ')}</td>
+            <td>₹${order.total.toFixed(2)}</td>
+            <td>${order.status}</td>
+            <td>${order.orderDate}</td>
+            <td>${order.shiprocketOrderId}</td>
+            <td>${order.paymentMethod}</td>
+            <td>${order.pickupLocation}</td>
+            <td>${order.shippingAddress}</td>
+            <td>${order.state}</td>
+            <td>${order.pincode}</td>
+            <td>${order.userId}</td>
+            <td><button class="oy-btn oy-btn-primary oy-btn-sm" onclick="showOrderDetails(${order.orderId})">View</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showOrderDetails(orderId) {
+    const order = orders.find(o => o.orderId === orderId);
+    const modal = document.getElementById('orderModal');
+    const modalBody = document.getElementById('orderDetails');
+    if (!modal || !modalBody) {
+        console.error('Modal or modal body element not found');
+        return;
+    }
+
+    modalBody.innerHTML = `
+        <h6>Order #${order.orderId}</h6>
+        <p><strong>Customer:</strong> ${order.customerFirstName} ${order.customerLastName || ''}</p>
+        <p><strong>Total:</strong> ₹${order.total.toFixed(2)}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Order Date:</strong> ${order.orderDate}</p>
+        <p><strong>Shipping:</strong> ${order.shippingAddress}, ${order.state} ${order.pincode}</p>
+        <h6>Items:</h6>
+        ${order.items.map(item => {
+            const product = products.find(p => p.productId === item.productId);
+            const imageSrc = product?.ProductImage ? `data:image/jpeg;base64,${product.ProductImage}` : '';
+            return `
+                <div class="oy-order-detail-item">
+                    <img src="${imageSrc}" class="oy-order-item-img" alt="${item.name}">
+                    <p><strong>${item.name}</strong></p>
+                    <p>Qty: ${item.productQuantity} | Price: ₹${item.productPrice.toFixed(2)}</p>
+                </div>
+            `;
+        }).join('')}
+    `;
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    const modal = document.getElementById('orderModal');
+    if (modal) modal.classList.remove('show');
+}
+
+function applyFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    const fromDateInput = document.getElementById('fromDate');
+    const toDateInput = document.getElementById('toDate');
+
+    let filteredOrders = [...orders];
+
+    if (statusFilter && statusFilter.value) {
+        filteredOrders = filteredOrders.filter(order => order.status === statusFilter.value);
+    }
+
+    if (fromDateInput && fromDateInput.value) {
+        const fromDate = new Date(fromDateInput.value);
+        if (!isNaN(fromDate)) {
+            filteredOrders = filteredOrders.filter(order => {
+                const orderDate = new Date(order.orderDate);
+                return !isNaN(orderDate) && orderDate >= fromDate;
+            });
+        }
+    }
+
+    if (toDateInput && toDateInput.value) {
+        const toDate = new Date(toDateInput.value);
+        toDate.setHours(23, 59, 59, 999); // Include entire day
+        if (!isNaN(toDate)) {
+            filteredOrders = filteredOrders.filter(order => {
+                const orderDate = new Date(order.orderDate);
+                return !isNaN(orderDate) && orderDate <= toDate;
+            });
+        }
+    }
+
+    displayOrders(filteredOrders);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const fromDate = document.getElementById('fromDate');
+    const toDate = document.getElementById('toDate');
+    const selectAll = document.getElementById('selectAll');
+    const exportBtn = document.getElementById('exportBtn');
+    const closeButtons = document.querySelectorAll('.oy-modal-close');
+
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            if (e.target.value.length >= 3) {
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredOrders = orders.filter(order => 
+                        order.items.some(item => item.name.toLowerCase().includes(searchTerm))
+                    );
+                    displayOrders(filteredOrders);
+                }, 500);
+            } else {
+                applyFilters(); // Reapply other filters when search is cleared
+            }
+        });
+    } else {
+        console.error('Search input element not found');
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener('change', applyFilters);
+    } else {
+        console.error('Status filter element not found');
+    }
+
+    if (fromDate) {
+        fromDate.addEventListener('change', applyFilters);
+    } else {
+        console.error('From date input element not found');
+    }
+
+    if (toDate) {
+        toDate.addEventListener('change', applyFilters);
+    } else {
+        console.error('To date input element not found');
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function(e) {
+            document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+    } else {
+        console.error('Select all checkbox not found');
+    }
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked'))
+                .map(cb => parseInt(cb.dataset.id));
+            
+            const selectedOrders = orders.filter(order => selectedIds.includes(order.orderId));
+            
+            const csvContent = [
+                ['Order ID', 'Customer', 'Phone', 'Items', 'Total', 'Status', 'Order Date', 'Shiprocket ID', 'Payment', 'Pickup', 'Address', 'State', 'Pincode', 'User ID'],
+                ...selectedOrders.map(order => [
+                    order.orderId,
+                    `${order.customerFirstName} ${order.customerLastName || ''}`,
+                    order.customerPhone,
+                    order.items.map(item => item.name).join('; '),
+                    order.total.toFixed(2),
+                    order.status,
+                    order.orderDate,
+                    order.shiprocketOrderId,
+                    order.paymentMethod,
+                    order.pickupLocation,
+                    order.shippingAddress,
+                    order.state,
+                    order.pincode,
+                    order.userId
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'orders_export.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    } else {
+        console.error('Export button not found');
+    }
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', closeModal);
+    });
+
+    fetchData();
+});

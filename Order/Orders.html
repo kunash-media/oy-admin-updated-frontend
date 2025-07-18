@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,247 +7,269 @@
     <title>OY Admin</title>
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
     <script src="../Dashboard/Dashboard.js"></script>
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ancizar+Serif&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="Order.css">
+    <link rel="stylesheet" href="../Order/Order.css">
 </head>
 
 <style>
-         .top-navbar {
-            background-color: #2d2d30;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
- 
-        .nav-left {
-            display: flex;
-            align-items: center;
-        }
- 
-        .menu-icon {
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            margin-right: 15px;
-        }
- 
-        .admin-name {
-            color: white;
-            font-size: 18px;
-            font-weight: 500;
-        }
- 
-        .nav-right {
-            position: relative;
-        }
- 
-        .profile-icon {
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
- 
-        .dropdown {
-            position: absolute;
-            top: 40px;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: none;
-            min-width: 120px;
-        }
- 
-        .dropdown.show {
-            display: block;
-        }
- 
-        .dropdown-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
- 
-        .dropdown-item:hover {
-            background-color: #f0f0f0;
-        }
- 
-        /* Left Navigation Bar */
-        .left-navbar {
-            position: fixed;
-            top: 60px;
-            left: -250px;
-            width: 250px;
-            height: calc(100vh - 60px);
-            background-color: #2d2d30;
-            transition: left 0.3s ease;
-            z-index: 999;
-            overflow-y: auto;
-        }
- 
-        .left-navbar.open {
-            left: 0;
-        }
- 
-        .nav-item {
-            border-bottom: 1px solid #404040;
-        }
- 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
- 
-        .nav-link:hover {
-            background-color: #404040;
-        }
- 
-        .nav-arrow {
-            font-size: 12px;
-            transition: transform 0.3s;
-        }
- 
-        .nav-arrow.rotated {
-            transform: rotate(90deg);
-        }
- 
-        .sub-menu {
-            background-color: #404040;
-            display: none;
-        }
- 
-        .sub-menu.show {
-            display: block;
-        }
- 
-        .sub-link {
-            padding: 12px 40px;
-            color: #ccc;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.3s;
-        }
- 
-        .sub-link:hover {
-            background-color: #505050;
-        }
-
+    .oy-top-nav {
+        background-color: #2d2d30;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+    .oy-nav-left {
+        display: flex;
+        align-items: center;
+    }
+    .oy-menu-icon {
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        margin-right: 15px;
+    }
+    .oy-admin-name {
+        color: white;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    .oy-nav-right {
+        position: relative;
+    }
+    .oy-profile-icon {
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    .oy-dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: none;
+        min-width: 120px;
+    }
+    .oy-dropdown.show {
+        display: block;
+    }
+    .oy-dropdown-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .oy-dropdown-item:hover {
+        background-color: #f0f0f0;
+    }
+    .oy-left-nav {
+        position: fixed;
+        top: 60px;
+        left: -250px;
+        width: 250px;
+        height: calc(100vh - 60px);
+        background-color: #2d2d30;
+        transition: left 0.3s ease;
+        z-index: 999;
+        overflow-y: auto;
+    }
+    .oy-left-nav.open {
+        left: 0;
+    }
+    .oy-nav-item {
+        border-bottom: 1px solid #404040;
+    }
+    .oy-nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .oy-nav-link:hover {
+        background-color: #404040;
+    }
+    .oy-nav-arrow {
+        font-size: 12px;
+        transition: transform 0.3s;
+    }
+    .oy-nav-arrow.rotated {
+        transform: rotate(90deg);
+    }
+    .oy-sub-menu {
+        background-color: #404040;
+        display: none;
+    }
+    .oy-sub-menu.show {
+        display: block;
+    }
+    .oy-sub-link {
+        padding: 12px 40px;
+        color: #ccc;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.3s;
+    }
+    .oy-sub-link:hover {
+        background-color: #505050;
+    }
     a {
         text-decoration: none;
         color: white;
-    }  
+    }
 </style>
 
 <body>
-    
-     <!-- Top Navigation Bar -->
-    <div class="top-navbar">
-        <div class="nav-left">
-            <div class="menu-icon" onclick="toggleLeftNav()">☰</div>
-            <span class="admin-name">Admin</span>
+    <div class="oy-top-nav">
+        <div class="oy-nav-left">
+            <div class="oy-menu-icon" onclick="toggleLeftNav()">☰</div>
+            <span class="oy-admin-name">Admin</span>
         </div>
-        <div class="nav-right">
-            <div class="profile-icon" onclick="toggleDropdown()"><i class="fas fa-user-circle profile-icon" id="profileIcon"></i></div>
-            <div class="dropdown" id="profileDropdown">
-                <div class="dropdown-item" onclick="logout()">Logout</div>
+        <div class="oy-nav-right">
+            <div class="oy-profile-icon" onclick="toggleDropdown()"><i class="fas fa-user-circle oy-profile-icon" id="profileIcon"></i></div>
+            <div class="oy-dropdown" id="profileDropdown">
+                <div class="oy-dropdown-item" onclick="logout()">Logout</div>
             </div>
         </div>
     </div>
- 
-    <!-- Left Navigation Bar -->
-    <div class="left-navbar" id="leftNavbar">
-        <div class="nav-item">
 
-           <div class="nav-link" ><a href="../Dashboard/Dashboard.html">Dashboard</a></div>
-            <div class="nav-link" onclick="toggleSubMenu('inventory')">
+    <div class="oy-left-nav" id="leftNavbar">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link"><a href="../Dashboard/Dashboard.html">Dashboard</a></div>
+            <div class="oy-nav-link" onclick="toggleSubMenu('inventory')">
                 <span>Inventory</span>
-                <span class="nav-arrow" id="inventoryArrow">▶</span>
+                <span class="oy-nav-arrow" id="inventoryArrow">▶</span>
             </div>
-            <div class="sub-menu" id="inventoryMenu">
-                <a href="../products/product.html" class="sub-link">Product</a>
-                <a href="../Banners/banner.html" class="sub-link">Banners</a>
-                <a href="#" class="sub-link">Coupons</a>
+            <div class="oy-sub-menu" id="inventoryMenu">
+                <a href="../products/product.html" class="oy-sub-link">Product</a>
+                <a href="../Banners/banner.html" class="oy-sub-link">Banners</a>
+                <a href="#" class="oy-sub-link">Coupons</a>
             </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-link" onclick="toggleSubMenu('customers')">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link" onclick="toggleSubMenu('customers')">
                 <span>Customers</span>
-                <span class="nav-arrow" id="customersArrow">▶</span>
+                <span class="oy-nav-arrow" id="customersArrow">▶</span>
             </div>
-            <div class="sub-menu" id="customersMenu">
-                <a href="../CustomerDetails/CustomerDetails.html" class="sub-link">Customer Details</a>
+            <div class="oy-sub-menu" id="customersMenu">
+                <a href="../CustomerDetails/CustomerDetails.html" class="oy-sub-link">Customer Details</a>
             </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-link">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link">
                 <a href="../Order/Orders.html"><span>Order</span></a>
             </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-link" onclick="toggleSubMenu('store')">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link" onclick="toggleSubMenu('store')">
                 <span>Store Customization</span>
-                <span class="nav-arrow" id="storeArrow">▶</span>
+                <span class="oy-nav-arrow" id="storeArrow">▶</span>
             </div>
-            <div class="sub-menu" id="storeMenu">
-                <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="sub-link">About Us</a>
-                <a href="../Customization/contact/Contactus-Customization.html" class="sub-link">Contact Us</a>
+            <div class="oy-sub-menu" id="storeMenu">
+                <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="oy-sub-link">About Us</a>
+                <a href="../Customization/contact/Contactus-Customization.html" class="oy-sub-link">Contact Us</a>
             </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-link">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link">
                 <a href="../OurStaff/OurStaff.html"><span>Our Staff</span></a>
             </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-link" onclick="toggleSubMenu('settings')">
+        <div class="oy-nav-item">
+            <div class="oy-nav-link" onclick="toggleSubMenu('settings')">
                 <span>Settings</span>
-                <span class="nav-arrow" id="settingsArrow">▶</span>
+                <span class="oy-nav-arrow" id="settingsArrow">▶</span>
             </div>
-            <div class="sub-menu" id="settingsMenu">
-                <a href="../Admin_Details/AdminDetails.html" class="sub-link">Admin Details</a>
+            <div class="oy-sub-menu" id="settingsMenu">
+                <a href="../Admin_Details/AdminDetails.html" class="oy-sub-link">Admin Details</a>
             </div>
         </div>
-        <!-- <div class="nav-item">
-            <div class="nav-link" onclick="logout()">
-                <a href="../Login/Login.html"><span>Logout</span></a>
+    </div>
+
+    <div class="oy-container">
+        <div class="oy-filter-section">
+            <div class="oy-search-container">
+                <input type="text" id="searchInput" class="oy-search-input" placeholder="Search by item name...">
             </div>
-        </div> -->
+            <div class="oy-filter-controls">
+                <select id="statusFilter" class="oy-filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <div style="display: flex; justify-content: space-evenly; align-items:flex-start;">
+                    <span>From </span>
+                    <input type="date" id="fromDate" class="oy-date-input">
+                    <span>To</span>
+                    <input type="date" id="toDate" class="oy-date-input">
+                </div>
+                <button id="exportBtn" class="oy-btn oy-btn-primary">Export to Excel</button>
+            </div>
+        </div>
+
+        <div class="oy-table-container">
+            <table class="oy-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                        <th>Shiprocket ID</th>
+                        <th>Payment</th>
+                        <th>Pickup</th>
+                        <th>Address</th>
+                        <th>State</th>
+                        <th>Pincode</th>
+                        <th>User ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody"></tbody>
+            </table>
+        </div>
+
+        <div class="oy-modal" id="orderModal">
+            <div class="oy-modal-content">
+                <div class="oy-modal-header">
+                    <h5 class="oy-modal-title">Order Details</h5>
+                    <button type="button" class="oy-modal-close">×</button>
+                </div>
+                <div class="oy-modal-body" id="orderDetails">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div class="oy-modal-footer">
+                    <button type="button" class="oy-btn oy-btn-secondary oy-modal-close">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div>
-        <h1 style="text-align: center; margin: 21%;">
-        Under fetching
-    </h1>
-    </div>
     <script src="../admin-global-js/admin-session.js"></script>
-    <script src="../Order/Orders.js"></script>
-
-
+    <script src="../Order/Order.js"></script>
 </body>
-
 </html>
