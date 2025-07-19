@@ -237,7 +237,7 @@ footer {
     box-shadow: 0 0 4px rgba(0,123,255,0.3);
 }
 
-.oy-filter-controls > div {
+.oy-filter-controls .oy-date-range {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -316,7 +316,7 @@ footer {
 
 .oy-table th, .oy-table td {
     padding: 12px;
-    border: 1px solid #dee2e6;
+    border: 1px solid rgba(189, 187, 187, 0.603);
     text-align: left;
     vertical-align: middle;
 }
@@ -331,14 +331,33 @@ footer {
 }
 
 .oy-table td {
-    max-width: 150px;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+.oy-table td.oy-customer-cell {
+    max-width: 250px;
+    /* white-space: normal; */
+    overflow: visible;
+    word-wrap: break-word;
+}
+
 .oy-table input[type="checkbox"] {
     cursor: pointer;
+}
+
+.oy-today-label {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
 /* Modal Styles */
@@ -474,7 +493,7 @@ footer {
         margin-bottom: 10px;
     }
 
-    .oy-filter-controls > div {
+    .oy-filter-controls .oy-date-range {
         flex-direction: column;
         align-items: stretch;
         gap: 8px;
@@ -495,6 +514,10 @@ footer {
     .oy-table th, .oy-table td {
         padding: 8px;
         font-size: 0.8rem;
+    }
+
+    .oy-table td.oy-customer-cell {
+        max-width: 200px;
     }
 
     .oy-order-item-img {
@@ -526,12 +549,21 @@ footer {
     .oy-order-detail-item p strong {
         font-size: 0.9rem;
     }
+
+    .oy-today-label {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
 }
 
 @media (max-width: 576px) {
     .oy-table th, .oy-table td {
         padding: 6px;
         font-size: 0.75rem;
+    }
+
+    .oy-table td.oy-customer-cell {
+        max-width: 150px;
     }
 
     .oy-order-detail-item {
@@ -568,5 +600,10 @@ footer {
     .oy-filter-controls .oy-date-input {
         width: 100%;
         max-width: none;
+    }
+
+    .oy-today-label {
+        font-size: 0.65rem;
+        padding: 1px 5px;
     }
 }

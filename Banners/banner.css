@@ -422,11 +422,11 @@ body {
 .banner-table td {
     padding: 16px 12px;
     text-align: left;
-    border-bottom: 1px solid #e1e8ed;
+    border: 1px solid #adb3b8;
 }
 
 .banner-table th {
-    background-color: #f8f9fa;
+    background-color: #d9dcdf;
     font-weight: 600;
     color: #2c3e50;
     font-size: 14px;

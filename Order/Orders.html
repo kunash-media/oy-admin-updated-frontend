@@ -218,14 +218,21 @@
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
-                <div style="display: flex; justify-content: space-evenly; align-items:flex-start;">
-                    <span>From </span>
+                <select id="timeFilter" class="oy-filter-select">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">Week</option>
+                    <option value="month">This Month</option>
+                </select>
+                <div class="oy-date-range">
+                    <span>From</span>
                     <input type="date" id="fromDate" class="oy-date-input">
                     <span>To</span>
                     <input type="date" id="toDate" class="oy-date-input">
                 </div>
                 <button id="exportBtn" class="oy-btn oy-btn-primary">Export to Excel</button>
             </div>
+
         </div>
 
         <div class="oy-table-container">

@@ -162,6 +162,7 @@ async function fetchData() {
 }
 
 function displayOrders(ordersToDisplay) {
+    // Get the table body element
     const tbody = document.getElementById('ordersBody');
     if (!tbody) {
         console.error('Table body element not found');
@@ -169,6 +170,7 @@ function displayOrders(ordersToDisplay) {
     }
     tbody.innerHTML = '';
 
+    // Check if there are no orders to display
     if (ordersToDisplay.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = '<td colspan="16" style="text-align: center; padding: 20px;">No Order Found</td>';
@@ -176,12 +178,26 @@ function displayOrders(ordersToDisplay) {
         return;
     }
 
+    // Get today's date dynamically in local timezone (IST) in YYYY-MM-DD format
+    const today = new Date();
+    const todayDate = today.toLocaleDateString('en-CA'); // Returns YYYY-MM-DD in local timezone (IST)
+
+    // Iterate through orders and create table rows
     ordersToDisplay.forEach(order => {
         const row = document.createElement('tr');
+        // Extract order date in YYYY-MM-DD format, handling ISO format with or without time
+        const orderDate = order.orderDate.split('T')[0];
+        // Check if order date matches today in local timezone
+        const isToday = orderDate === todayDate;
+        // Add "Today" label with green background if order is from today
+        const customerCell = isToday 
+            ? `${order.customerFirstName} ${order.customerLastName || ''} <span class="oy-today-label">Today</span>`
+            : `${order.customerFirstName} ${order.customerLastName || ''}`;
+        
         row.innerHTML = `
             <td><input type="checkbox" class="order-checkbox" data-id="${order.orderId}"></td>
             <td>${order.orderId}</td>
-            <td>${order.customerFirstName} ${order.customerLastName || ''}</td>
+            <td class="oy-customer-cell">${customerCell}</td>
             <td>${order.customerPhone}</td>
             <td>${order.items.map(item => item.name).join(', ')}</td>
             <td>₹${order.total.toFixed(2)}</td>
@@ -241,31 +257,70 @@ function applyFilters() {
     const statusFilter = document.getElementById('statusFilter');
     const fromDateInput = document.getElementById('fromDate');
     const toDateInput = document.getElementById('toDate');
+    const timeFilter = document.getElementById('timeFilter');
 
     let filteredOrders = [...orders];
 
+    // Apply status filter
     if (statusFilter && statusFilter.value) {
         filteredOrders = filteredOrders.filter(order => order.status === statusFilter.value);
     }
 
-    if (fromDateInput && fromDateInput.value) {
-        const fromDate = new Date(fromDateInput.value);
-        if (!isNaN(fromDate)) {
+    // Apply time filter (Today, Week, This Month)
+    if (timeFilter && timeFilter.value) {
+        const today = new Date();
+        const todayDate = today.toLocaleDateString('en-CA'); // Current date in YYYY-MM-DD in local timezone (IST)
+
+        if (timeFilter.value === 'today') {
+            filteredOrders = filteredOrders.filter(order => 
+                order.orderDate.split('T')[0] === todayDate
+            );
+        } else if (timeFilter.value === 'week') {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay() + 1); // Monday of current week
+            const weekEnd = new Date(today);
+            weekEnd.setDate(today.getDate() - today.getDay() + 7); // Sunday of current week
+            weekEnd.setHours(23, 59, 59, 999); // Include entire Sunday
             filteredOrders = filteredOrders.filter(order => {
                 const orderDate = new Date(order.orderDate);
-                return !isNaN(orderDate) && orderDate >= fromDate;
+                orderDate.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+                return !isNaN(orderDate) && orderDate >= weekStart && orderDate <= weekEnd;
+            });
+        } else if (timeFilter.value === 'month') {
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1); // First day of current month
+            const monthEnd = new Date(today);
+            monthEnd.setHours(23, 59, 59, 999); // Include entire current day
+            filteredOrders = filteredOrders.filter(order => {
+                const orderDate = new Date(order.orderDate);
+                orderDate.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+                return !isNaN(orderDate) && orderDate >= monthStart && orderDate <= monthEnd;
             });
         }
     }
 
-    if (toDateInput && toDateInput.value) {
-        const toDate = new Date(toDateInput.value);
-        toDate.setHours(23, 59, 59, 999); // Include entire day
-        if (!isNaN(toDate)) {
-            filteredOrders = filteredOrders.filter(order => {
-                const orderDate = new Date(order.orderDate);
-                return !isNaN(orderDate) && orderDate <= toDate;
-            });
+    // Apply custom date range filter (only if timeFilter is not set to avoid conflicts)
+    if (!timeFilter?.value) {
+        if (fromDateInput && fromDateInput.value) {
+            const fromDate = new Date(fromDateInput.value);
+            if (!isNaN(fromDate)) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderDate = new Date(order.orderDate);
+                    orderDate.setHours(0, 0, 0, 0); // Normalize to start of day
+                    return !isNaN(orderDate) && orderDate >= fromDate;
+                });
+            }
+        }
+
+        if (toDateInput && toDateInput.value) {
+            const toDate = new Date(toDateInput.value);
+            toDate.setHours(23, 59, 59, 999); // Include entire day
+            if (!isNaN(toDate)) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderDate = new Date(order.orderDate);
+                    orderDate.setHours(0, 0, 0, 0); // Normalize to start of day
+                    return !isNaN(orderDate) && orderDate <= toDate;
+                });
+            }
         }
     }
 
@@ -277,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusFilter = document.getElementById('statusFilter');
     const fromDate = document.getElementById('fromDate');
     const toDate = document.getElementById('toDate');
+    const timeFilter = document.getElementById('timeFilter');
     const selectAll = document.getElementById('selectAll');
     const exportBtn = document.getElementById('exportBtn');
     const closeButtons = document.querySelectorAll('.oy-modal-close');
@@ -317,6 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
         toDate.addEventListener('change', applyFilters);
     } else {
         console.error('To date input element not found');
+    }
+
+    if (timeFilter) {
+        timeFilter.addEventListener('change', applyFilters);
+    } else {
+        console.error('Time filter element not found');
     }
 
     if (selectAll) {
