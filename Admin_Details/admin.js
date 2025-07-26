@@ -45,51 +45,7 @@
             });
         }
 
-        // Navigation functions
-        // function toggleLeftNav() {
-        //     const leftNav = document.getElementById('leftNavbar');
-        //     const mainContent = document.getElementById('mainContent');
-        //     const overlay = document.getElementById('overlay');
-
-        //     leftNav.classList.toggle('active');
-        //     if (window.innerWidth > 768) {
-        //         mainContent.classList.toggle('shifted');
-        //     }
-            
-        //     if (leftNav.classList.contains('active') && window.innerWidth <= 768) {
-        //         overlay.style.display = 'block';
-        //     } else {
-        //         overlay.style.display = 'none';
-        //     }
-        // }
-
-        // function toggleDropdown() {
-        //     const dropdown = document.getElementById('profileDropdown');
-        //     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        // }
-
-        // function toggleSubMenu(menuId) {
-        //     const menu = document.getElementById(menuId + 'Menu');
-        //     const arrow = document.getElementById(menuId + 'Arrow');
-            
-        //     menu.classList.toggle('active');
-        //     arrow.classList.toggle('rotated');
-        // }
-
-
-
-        // Close dropdown when clicking outside
-        // document.addEventListener('click', function(e) {
-        //     if (!e.target.closest('.nav-right')) {
-        //         document.getElementById('profileDropdown').style.display = 'none';
-        //     }
-        //     if (!e.target.closest('.left-navbar') && !e.target.closest('.menu-icon')) {
-        //         document.getElementById('overlay').style.display = 'none';
-        //         document.getElementById('leftNavbar').classList.remove('active');
-        //         document.getElementById('mainContent').classList.remove('shifted');
-        //     }
-        // });
-
+       
         // API functions
         async function loadAdmins() {
             try {
@@ -212,6 +168,7 @@
                     <td>${admin.id}</td>
                     <td>${admin.name}</td>
                     <td>${admin.email}</td>
+                    <td>${admin.mobileNumber}</td>
                     <td><span class="role-badge">${admin.role}</span></td>
                     <td>${formatDate(admin.createdAt)}</td>
                     <td>${formatDate(admin.updatedAt)}</td>
@@ -275,6 +232,7 @@
             
             document.getElementById('adminName').value = admin.name;
             document.getElementById('adminEmail').value = admin.email;
+            document.getElementById('adminMobile').value = admin.mobileNumber;
             document.getElementById('adminRole').value = admin.role;
             document.getElementById('adminPassword').value = '';
             document.getElementById('adminPassword').placeholder = 'Leave empty to keep current password';
@@ -296,6 +254,7 @@
             const formData = {
                 name: document.getElementById('adminName').value,
                 email: document.getElementById('adminEmail').value,
+                mobileNumber : document.getElementById('adminMobile').value,
                 role: document.getElementById('adminRole').value
             };
 
