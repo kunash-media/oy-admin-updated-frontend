@@ -314,6 +314,10 @@ footer {
     font-size: 0.85rem;
 }
 
+#order-id-th{
+    background-color: #d8e7f6;
+}
+
 .oy-table th, .oy-table td {
     padding: 12px;
     border: 1px solid rgba(189, 187, 187, 0.603);
@@ -322,12 +326,44 @@ footer {
 }
 
 .oy-table th {
-    background-color: #f8f9fa;
+    background-color: #d8e7f6;
     color: #333;
     font-weight: 500;
     position: sticky;
     top: 0;
     z-index: 2;
+}
+
+#status-color-id{
+    background-color: red;
+
+     display: inline-block;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    /* font-size: 0.75rem; */
+    font-weight: 500;
+    margin: 12px;
+    vertical-align: middle;
+}
+
+#status-color-pay{
+    /* color:  */
+    font-weight: 500;
+
+}
+
+#oy-today-label-cod{
+    background-color: rgb(149, 58, 241);
+     display: inline-block;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    /* font-size: 0.75rem; */
+    font-weight: 500;
+    margin: 12px;
+    vertical-align: middle;
+
 }
 
 .oy-table td {

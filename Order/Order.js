@@ -173,7 +173,7 @@ function displayOrders(ordersToDisplay) {
     // Check if there are no orders to display
     if (ordersToDisplay.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="16" style="text-align: center; padding: 20px;">No Order Found</td>';
+        row.innerHTML = '<td colspan="16"  style="text-align: center; padding: 20px;">No Order Found</td>';
         tbody.appendChild(row);
         return;
     }
@@ -201,10 +201,10 @@ function displayOrders(ordersToDisplay) {
             <td>${order.customerPhone}</td>
             <td>${order.items.map(item => item.name).join(', ')}</td>
             <td>₹${order.total.toFixed(2)}</td>
-            <td>${order.status}</td>
+            <td id="status-color-id">${order.status}</td>
             <td>${order.orderDate}</td>
             <td>${order.shiprocketOrderId}</td>
-            <td>${order.paymentMethod}</td>
+            <td id="oy-today-label-cod">${order.paymentMethod}</td>
             <td>${order.pickupLocation}</td>
             <td>${order.shippingAddress}</td>
             <td>${order.state}</td>
