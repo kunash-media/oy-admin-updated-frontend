@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // API Login Implementation
         try {
             // Call the login API
-            const response = await fetch('http://localhost:8080/api/admin/login-admin', {
+            const response = await fetch('https://api.oyjewells.com/api/admin/login-admin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

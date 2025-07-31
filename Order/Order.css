@@ -270,12 +270,12 @@ footer {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 4px 16px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: background-color 0.2s;
-    height: 36px;
+    height: 30px;
     line-height: 1;
 }
 
@@ -314,12 +314,12 @@ footer {
     font-size: 0.85rem;
 }
 
-#order-id-th{
+#order-id-th {
     background-color: #d8e7f6;
 }
 
 .oy-table th, .oy-table td {
-    padding: 12px;
+    padding: 14px;
     border: 1px solid rgba(189, 187, 187, 0.603);
     text-align: left;
     vertical-align: middle;
@@ -334,40 +334,70 @@ footer {
     z-index: 2;
 }
 
-#status-color-id{
+/* Status cell styling */
+.status-placed {
+    background-color: rgb(30, 149, 235);
+    color: white;
+    padding: 4px 8px; /* Reduced padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Changed to inline-block for better alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
+}
+
+.status-shipped {
+    background-color: rgb(233, 190, 18);
+    color: black;
+    padding: 4px 8px; /* Reduced padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Maintain inline-block for alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
+}
+
+.status-cancelled {
     background-color: red;
-
-     display: inline-block;
     color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    /* font-size: 0.75rem; */
-    font-weight: 500;
-    margin: 12px;
-    vertical-align: middle;
+    padding: 4px 6px; /* Reduced padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Maintain inline-block for alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
 }
 
-#status-color-pay{
-    /* color:  */
-    font-weight: 500;
-
+.status-delivered {
+    background-color: rgb(18, 208, 176);
+    color: white;
+    padding: 4px 8px; /* Reduced padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Maintain inline-block for alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
 }
 
-#oy-today-label-cod{
+/* Payment method cell styling */
+.payment-cod {
+    background-color: rgb(237, 152, 24);
+    color: white;
+    padding: 4px 8px; /* Adjusted padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Maintain inline-block for alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
+}
+
+.payment-paid {
     background-color: rgb(149, 58, 241);
-     display: inline-block;
     color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    /* font-size: 0.75rem; */
-    font-weight: 500;
-    margin: 12px;
-    vertical-align: middle;
-
+    padding: 4px 8px; /* Reduced padding for smaller size */
+    border-radius: 8px; /* Smaller border-radius for less rounded appearance */
+    display: inline-block; /* Maintain inline-block for alignment */
+    text-align: center; /* Ensure text is centered */
+    margin: 0 auto; /* Center within cell */
 }
 
 .oy-table td {
-    max-width: 200px;
+    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -375,7 +405,6 @@ footer {
 
 .oy-table td.oy-customer-cell {
     max-width: 250px;
-    /* white-space: normal; */
     overflow: visible;
     word-wrap: break-word;
 }
@@ -394,6 +423,23 @@ footer {
     font-weight: 500;
     margin-left: 8px;
     vertical-align: middle;
+    animation: pulse 2s ease-in-out infinite; /* Added pulse animation */
+}
+
+/* Keyframes for pulse animation on Today label */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* Modal Styles */

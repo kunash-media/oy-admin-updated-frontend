@@ -29,12 +29,12 @@ body {
     font-size: 24px;
     font-weight: 400;
     color: #333;
-    margin: 4;
+    margin-top: 80px;
+    /* margin: 4; */
 }
 
 /* Action Container */
 .action-container {
-    
     margin: 65px 20px 20px 20px;
     padding: 20px;
     background-color: white;

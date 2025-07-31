@@ -7,7 +7,7 @@ let customersPerPage = 10;
 let searchTimeout;
 
 // API Base URL
-const API_BASE_URL = 'http://localhost:8080/api/users';
+const API_BASE_URL = 'https://api.oyjewells.com/api/users';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -527,7 +527,7 @@ function showConfirmation(message, onConfirm) {
             const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {

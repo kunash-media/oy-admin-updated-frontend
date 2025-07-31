@@ -6,7 +6,6 @@
     <link rel="shortcut icon" href="../Img/01.png">
     <title>OY Admin</title>
     <link rel="stylesheet" href="../Dashboard/Dashboard.css">
-    <script src="../Dashboard/Dashboard.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -161,7 +160,7 @@
             <div class="oy-sub-menu" id="inventoryMenu">
                 <a href="../products/product.html" class="oy-sub-link">Product</a>
                 <a href="../Banners/banner.html" class="oy-sub-link">Banners</a>
-                <a href="#" class="oy-sub-link">Coupons</a>
+                <a href="../coupon/Coupon.html" class="sub-link">Coupons</a>
             </div>
         </div>
         <div class="oy-nav-item">
@@ -184,7 +183,7 @@
                 <span class="oy-nav-arrow" id="storeArrow">▶</span>
             </div>
             <div class="oy-sub-menu" id="storeMenu">
-                <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="oy-sub-link">About Us</a>
+                <!-- <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="oy-sub-link">About Us</a> -->
                 <a href="../Customization/contact/Contactus-Customization.html" class="oy-sub-link">Contact Us</a>
             </div>
         </div>
@@ -213,7 +212,7 @@
             <div class="oy-filter-controls">
                 <select id="statusFilter" class="oy-filter-select">
                     <option value="">All Statuses</option>
-                    <option value="processing">Processing</option>
+                    <option value="placed">Placed</option>
                     <option value="shipped">Shipped</option>
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
@@ -240,7 +239,7 @@
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
-                        <th id="order-id-th">Order ID</th>
+                        <th>Order ID</th>
                         <th>Customer</th>
                         <th>Phone</th>
                         <th>Items</th>

@@ -1,5 +1,5 @@
 // Backend API Configuration
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://api.oyjewells.com';
 const API_ENDPOINT = `${API_BASE_URL}/api/admin/create-admin`;
 
 // Form Elements

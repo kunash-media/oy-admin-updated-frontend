@@ -7,7 +7,7 @@
         let confirmCallback = null;
 
         // API base URL
-        const API_BASE_URL = 'http://localhost:8080/api/admin';
+        const API_BASE_URL = 'https://api.oyjewells.com/api/admin';
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
@@ -389,9 +389,9 @@ function toggleLeftNav() {
     overlay.style.display = leftNav.classList.contains('open') ? 'block' : 'none';
     
     // Only shift content on desktop
-    if (window.innerWidth > 768) {
-        mainContent.classList.toggle('shifted');
-    }
+    // if (window.innerWidth > 768) {
+    //     mainContent.classList.toggle('shifted');
+    // }
     
     // Close any open dropdown menus when toggling nav
     if (!leftNav.classList.contains('open')) {

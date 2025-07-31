@@ -2,196 +2,314 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
+    background-color: #f5f5f5; /* Light gray background for contrast */
 }
 
-.navbar {
+/* Main Content Styling */
+.main-content {
+    margin-left: 0;
+    margin-top: 80px; /* Added to clear top nav (60px height + 20px buffer) */
+    padding: 30px; /* Adjusted padding for consistency with Bootstrap */
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 110px); /* Account for top nav and footer */
+    background-color: #ffffff; /* White background for main content */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Shift main content when left nav is active */
+.left-nav.active ~ .main-content {
+    margin-left: 250px; /* Matches left navbar width */
+}
+
+/* Coupon Management Header */
+.main-content h4 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    color: #2d2d30; /* Matches top nav color */
+}
+
+/* Coupon Controls */
+.coupon-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; /* Responsive wrapping for smaller screens */
+}
+
+/* Ensure Bootstrap button styles are enhanced, not overridden */
+.coupon-controls .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.coupon-controls .btn-primary:hover {
+    background-color: #005f73;
+    border-color: #005f73;
+}
+
+.coupon-controls .btn-secondary,
+.coupon-controls .btn-outline-secondary {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 5px;
+}
+
+.coupon-controls .btn-outline-secondary {
+    border-color: #2d2d30;
+    color: #2d2d30;
+}
+
+.coupon-controls .btn-outline-secondary:hover {
     background-color: #2d2d30;
+    color: white;
+}
+
+.coupon-controls .dropdown-menu {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Styling */
+.recent-orders {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Ancizar Serif', serif;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: #2d2d30;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa; /* Light hover effect */
+}
+
+.table td {
+    padding: 12px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+}
+
+.table .form-check-input {
+    margin: 0;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 8px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.modal-header {
+    background-color: #2d2d30;
+    color: white;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.modal-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body .form-label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: #2d2d30;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+.modal-body .form-control[readonly] {
+    background-color: #f8f9fa;
+}
+
+.modal-footer .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #005f73;
+    border-color: #005f73;
+}
+
+.modal-footer .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+#customCategoryDiv .btn-secondary {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Coupon Details in View Coupon Modal */
+.coupon-details .card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.coupon-details .card-body {
+    padding: 15px;
+}
+
+.coupon-details .form-label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+.coupon-details .form-control {
+    background-color: #f8f9fa;
+}
+
+/* Footer */
+footer {
+    background-color: #f0f0f0;
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 15px;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    font-family: "roboto";
-}
-
-.navbar .dashboard {
-    color: white;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-}
-
-.navbar .menu-icon {
-    color: white;
-    margin-left: 15px;
-    cursor: pointer;
-}
-
-.navbar .icons {
-    display: flex;
-    align-items: center;
-}
-
-.icons>i {
-    margin-right: 20px;
-}
-
-.profile-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: white;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    width: 150px;
-    z-index: 1000;
-}
-
-.profile-menu a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: black;
-}
-
-.profile-menu a:hover {
-    background: #f1f1f1;
-}
-
-.profile-icon {
-    cursor: pointer;
-    color: white;
-    font-size: 1.2em;
-}
-
-.left-nav {
-    width: 220px;
-    background-color: #2d2d30;
-    position: fixed;
-    top: 50px;
-    left: 0;
-    height: calc(100vh - 50px);
-    display: block;
-    padding: 10px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    z-index: 999;
-    font-family: "Open Sans";
-}
-
-.left-nav .category {
-    cursor: pointer;
-    margin: 15px 0;
-    color: rgb(255, 255, 255);
-}
-
-.left-nav .sub-category a div,
-.left-nav .category {
-    color: rgb(255, 255, 255) !important;
-    text-decoration: none !important;
-}
-
-.left-nav .sub-category a:hover div {
-    color: rgb(255, 255, 255) !important;
-    text-decoration: none !important;
-}
-
-.left-nav .sub-category a {
-    text-decoration: none !important;
-}
-
-.sub-category {
-    margin-left: 20px;
-    display: none;
-}
-
-.logout-button {
-    background-color: #005f73;
-    color: #d3d3d3;
-    border: none;
-    padding: 10px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.logout-button:hover {
-    background-color: #007bff;
-}
-
-.main-content {
-    margin-left: 22%;
-    padding: 70px 0px 0px 0px;
-    transition: margin-left 0.3s;
-    font-family: "Ancizar Serif ";
-}
-
-footer {
-    background-color: #808080;
-    height: 50px;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    margin-top: 30px;
     width: 100%;
-    font-family: "Open Sans";
+    font-family: 'Open Sans', sans-serif;
+    color: #333;
+    font-size: 14px;
+    position: relative;
+    bottom: 0;
 }
 
-.left-nav a {
-    color: inherit !important;
-    text-decoration: none !important;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        margin-top: 80px; /* Ensure clearance of top nav */
+        padding: 15px; /* Reduced padding for mobile */
+    }
+
+    .left-nav.active ~ .main-content {
+        margin-left: 0; /* Prevent overlap with left nav */
+    }
+
+    .coupon-controls {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: stretch; /* Full width for buttons */
+        gap: 10px; /* Reduced gap for tighter layout */
+        padding-top: 10px; /* Extra padding to ensure visibility */
+    }
+
+    .coupon-controls .btn,
+    .coupon-controls .dropdown {
+        width: 100%; /* Full-width buttons and dropdown */
+        text-align: center;
+    }
+
+    .coupon-controls .dropdown-toggle {
+        width: 100%;
+    }
+
+    .coupon-controls .dropdown-menu {
+        width: 100%; /* Full-width dropdown menu */
+        text-align: center;
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Enable horizontal scrolling for table */
+        font-size: 12px;
+    }
+
+    .table thead th,
+    .table td {
+        padding: 8px; /* Reduced padding for mobile */
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    .modal-dialog {
+        margin: 10px; /* Adjust modal margins for mobile */
+        max-width: 95%; /* Ensure modal fits on small screens */
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .modal-body .form-control,
+    .modal-body .form-select {
+        font-size: 13px; /* Smaller inputs for mobile */
+    }
+
+    .modal-title {
+        font-size: 18px; /* Smaller modal title */
+    }
+
+    .modal-footer .btn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    footer {
+        font-size: 12px;
+        padding: 10px;
+    }
 }
 
-.left-nav a:hover {
-    color: inherit !important;
-    text-decoration: none !important;
-}
+@media (max-width: 576px) {
+    .main-content h4 {
+        font-size: 20px; /* Smaller header */
+    }
 
-.profile-icon {
-    cursor: pointer;
-    color: white;
-    font-size: 1.7em;
-}
+    .coupon-controls .btn,
+    .coupon-controls .dropdown-toggle {
+        font-size: 13px;
+        padding: 6px 12px; /* Smaller buttons */
+    }
 
-.table td.text-center {
-    white-space: nowrap;
-    /* Prevent buttons from wrapping */
-}
-
-.table td .btn-group {
-    display: inline-flex;
-    /* Use inline-flex instead of flex */
-    gap: 5px;
-}
-
-.table td .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    min-width: 32px;
-    /* Set a minimum width for consistency */
-}
-
-
-/* Ensure the action cell doesn't grow too wide */
-
-.table td:last-child {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.main-content {
-    font-family: "Ancizar Serif ";
+    .table thead th,
+    .table td {
+        font-size: 11px;
+        padding: 6px;
+    }
 }

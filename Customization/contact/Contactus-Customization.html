@@ -1,36 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="../Img/01.png">
-    <title>OY Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Contact Management System</title>
+    <link rel="stylesheet" href="./contact.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ancizar+Serif&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../Customization/contact/contact.css">
-
-</head>
-
-<style>
+    <style>
          .top-navbar {
             background-color: #2d2d30;
             height: 60px;
@@ -171,8 +150,10 @@
     }  
 </style>
 
+</head>
 <body>
-   <!-- Top Navigation Bar -->
+
+      <!-- Top Navigation Bar -->
     <div class="top-navbar">
         <div class="nav-left">
             <div class="menu-icon" onclick="toggleLeftNav()">☰</div>
@@ -198,7 +179,7 @@
             <div class="sub-menu" id="inventoryMenu">
                 <a href="../../products/product.html" class="sub-link">Product</a>
                 <a href="../../Banners/banner.html" class="sub-link">Banners</a>
-                <a href="#" class="sub-link">Coupons</a>
+                <a href="../../coupon/Coupon.html" class="sub-link">Coupons</a>
             </div>
         </div>
         <div class="nav-item">
@@ -221,7 +202,7 @@
                 <span class="nav-arrow" id="storeArrow">▶</span>
             </div>
             <div class="sub-menu" id="storeMenu">
-                <a href="../../Customization/AboutUs-Customization/AboutUs-Customization.html" class="sub-link">About Us</a>
+                <!-- <a href="../Customization/AboutUs-Customization/AboutUs-Customization.html" class="sub-link">About Us</a> -->
                 <a href="../../Customization/contact/Contactus-Customization.html" class="sub-link">Contact Us</a>
             </div>
         </div>
@@ -239,199 +220,82 @@
                 <a href="../../Admin_Details/AdminDetails.html" class="sub-link">Admin Details</a>
             </div>
         </div>
-        <!-- <div class="nav-item">
-            <div class="nav-link" onclick="logout()">
-                <a href="../../Login/Login.html"><span>Logout</span></a>
-            </div>
-        </div> -->
     </div>
 
 
+    <div class="contact-container">
+        <header class="contact-header">
+            <h1>Contact Management</h1>
+        </header>
 
-    <div class="main-content ">
-        <div class="container-fluid ">
-            <div class="d-flex justify-content-between align-items-center mb-4 ">
-                <h4 class="mb-0 " style="font-size:18px; font-weight: 350; font-family:roboto; ">ContactUS Settings</h4>
-                <button class="btn btn-success ">Update</button>
+        <div class="contact-search-section">
+            <input 
+                type="text" 
+                id="contactSearchInput" 
+                class="contact-search-input" 
+                placeholder="Search by name..."
+            >
+        </div>
+
+        <div class="contact-table-wrapper">
+            <table class="contact-table" id="contactTable">
+                <thead class="contact-table-head">
+                    <tr>
+                        <th>Form ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="contact-table-body" id="contactTableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="contact-loading" id="contactLoading">
+            <div class="contact-loader"></div>
+            <p>Loading contacts...</p>
+        </div>
+
+        <div class="contact-no-data" id="contactNoData" style="display: none;">
+            <p>No contacts found</p>
+        </div>
+    </div>
+
+    <!-- Overlay Modal -->
+    <div class="contact-overlay" id="contactOverlay">
+        <div class="contact-modal">
+            <div class="contact-modal-header">
+                <h2>Contact Details</h2>
+                <button class="contact-close-btn" id="contactCloseBtn">&times;</button>
             </div>
-
-            <!-- Banner1 Section -->
-            <div class="card mb-4 ">
-                <div class="card-body ">
-                    <h5 class="card-title ">Banner1</h5>
-                    <div class="mb-3 ">
-                        <label for="bannerImage " class="form-label ">Banner Image (Image/Video)</label>
-                        <input type="file " class="form-control " id="bannerImage " accept="image/*,video/* ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="bannerHeading " class="form-label ">Banner Heading</label>
-                        <input type="text " class="form-control " id="bannerHeading ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="bannerText " class="form-label ">Banner Text</label>
-                        <textarea class="form-control " id="bannerText " rows="3 "></textarea>
-                    </div>
+            <div class="contact-modal-body">
+                <div class="contact-form-field">
+                    <label>Form ID:</label>
+                    <span id="modalFormId"></span>
                 </div>
-            </div>
-
-            <hr class="my-4 ">
-
-            <!-- Get In Touch Section -->
-            <div class="card mb-4 ">
-                <div class="card-body ">
-                    <h5 class="card-title ">Get In Touch</h5>
-                    <h6 class="card-subtitle mb-3 ">Card</h6>
-                    <div class="mb-3 ">
-                        <label for="cardIconImage " class="form-label ">Card Icon Image</label>
-                        <input type="file " class="form-control " id="cardIconImage " accept="image/* ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="cardHeading " class="form-label ">Card Heading</label>
-                        <input type="text " class="form-control " id="cardHeading ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="cardText1 " class="form-label ">Card Text1</label>
-                        <input type="text " class="form-control " id="cardText1 ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="cardText2 " class="form-label ">Card Text2</label>
-                        <input type="text " class="form-control " id="cardText2 ">
-                    </div>
-                    <button class="btn btn-primary mt-2 ">Add Another Card</button>
+                <div class="contact-form-field">
+                    <label>Name:</label>
+                    <span id="modalName"></span>
                 </div>
-            </div>
-
-            <hr class="my-4 ">
-
-            <!-- Send Us a Message Section -->
-            <div class="card mb-4 ">
-                <div class="card-body ">
-                    <h5 class="card-title ">Send Us a Message</h5>
-                    <div class="mb-3 ">
-                        <label for="contactName " class="form-label ">Name</label>
-                        <input type="text " class="form-control " id="contactName ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="contactEmail " class="form-label ">Email</label>
-                        <input type="email " class="form-control " id="contactEmail ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="contactPhone " class="form-label ">Phone</label>
-                        <input type="tel " class="form-control " id="contactPhone ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="contactMessage " class="form-label ">How Can We Help?</label>
-                        <textarea class="form-control " id="contactMessage " rows="3 "></textarea>
-                    </div>
-                    <button class="btn btn-primary ">Add Form Element</button>
+                <div class="contact-form-field">
+                    <label>Email:</label>
+                    <span id="modalEmail"></span>
                 </div>
-            </div>
-
-            <hr class="my-4 ">
-
-            <!-- FAQ Section -->
-            <div class="card mb-4 ">
-                <div class="card-body ">
-                    <h5 class="card-title ">Frequently Asked Questions</h5>
-                    <div class="mb-3 ">
-                        <label for="question1 " class="form-label ">Question1</label>
-                        <input type="text " class="form-control " id="question1 ">
-                    </div>
-                    <div class="mb-3 ">
-                        <label for="answer1 " class="form-label ">Answer</label>
-                        <textarea class="form-control " id="answer1 " rows="3 "></textarea>
-                    </div>
-                    <button class="btn btn-primary ">Add Question & Answer</button>
+                <div class="contact-form-field">
+                    <label>Phone:</label>
+                    <span id="modalPhone"></span>
                 </div>
-            </div>
-            <hr class="my-4 ">
-
-            <!-- Footer Section -->
-            <div class="card mb-4 ">
-                <div class="card-header ">
-                    <h5>Footer</h5>
-                </div>
-                <div class="card-body ">
-                    <h5>Logo</h5>
-                    <div class="mb-3 ">
-                        <label class="form-label ">Logo Image</label>
-                        <input type="file " class="form-control " accept="image/* ">
-                    </div>
-
-                    <h5 class="mt-4 ">Shop</h5>
-                    <div class="row mb-2 " id="shopLinks ">
-                        <div class="col-md-5 ">
-                            <input type="text " class="form-control mb-2 " placeholder="Text1 ">
-                        </div>
-                        <div class="col-md-5 ">
-                            <input type="url " class="form-control mb-2 " placeholder="URL1 ">
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-primary " onclick="addLinkField( 'shopLinks') ">Add</button>
-                        </div>
-                    </div>
-
-                    <h5 class="mt-4 ">Company</h5>
-                    <div class="row mb-2 " id="companyLinks ">
-                        <div class="col-md-5 ">
-                            <input type="text " class="form-control mb-2 " placeholder="Text1 ">
-                        </div>
-                        <div class="col-md-5 ">
-                            <input type="url " class="form-control mb-2 " placeholder="URL1 ">
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-primary " onclick="addLinkField( 'companyLinks') ">Add</button>
-                        </div>
-                    </div>
-
-                    <h5 class="mt-4 ">Legal</h5>
-                    <div class="row mb-2 " id="legalLinks ">
-                        <div class="col-md-5 ">
-                            <input type="text " class="form-control mb-2 " placeholder="Text1 ">
-                        </div>
-                        <div class="col-md-5 ">
-                            <input type="url " class="form-control mb-2 " placeholder="URL1 ">
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-primary " onclick="addLinkField( 'legalLinks') ">Add</button>
-                        </div>
-                    </div>
-
-                    <h5 class="mt-4 ">Follow</h5>
-                    <div class="row mb-2 " id="socialIcons ">
-                        <div class="col-md-5 ">
-                            <input type="file " class="form-control mb-2 " accept="image/* " placeholder="Icon ">
-                        </div>
-                        <div class="col-md-5 ">
-                            <input type="url " class="form-control mb-2 " placeholder="Social Link ">
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-primary " onclick="addLinkField( 'socialIcons') ">Add</button>
-                        </div>
-                    </div>
-
-                    <h5 class="mt-4 ">Below Footer</h5>
-                    <div class="mb-3 ">
-                        <label class="form-label ">Footer Text</label>
-                        <textarea class="form-control " rows="2 "></textarea>
-                    </div>
-                    <button class="btn btn-primary ">Add</button>
+                <div class="contact-form-field">
+                    <label>Message:</label>
+                    <span id="modalMessage" class="contact-message-text"></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer style="background-color: #f0f0f0; height: 60px; display: flex; align-items: center; justify-content: center;font-family: Open Sans; ">
-        <!-- <img src="Img/logo.jpg " alt="Kunash Media Logo " style="height: 40px; width:60px ;margin-right: 15px; "> -->
-<p style="color: black; font-weight: 400; margin: 0; font-size: medium">
-            © 2025 OY Jewells | Developed by Kunash Media Gloabl Solutions.
-        </p>    </footer>
-
-
     <script src="contact.js"></script>
-    <script src="../admin-global-js/admin-session.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js "></script>
-
 </body>
-
 </html>

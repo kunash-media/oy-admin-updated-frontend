@@ -4,7 +4,7 @@
             const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {
@@ -135,7 +135,7 @@
 
 
 // product.js
-const API_BASE_URL = 'http://localhost:8080/api/products';
+const API_BASE_URL = 'https://api.oyjewells.com/api/products';
 
 let products = [];
 let currentEditingId = null;

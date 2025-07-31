@@ -4,7 +4,7 @@
             const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {
@@ -20,11 +20,7 @@
             arrow.classList.toggle('rotated');
         }
  
-        function logout() {
-            alert('Logging out...');
-            // Implement logout logic here
-        }
- 
+      
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('profileDropdown');
@@ -38,33 +34,33 @@
  
  
         // Close left navigation when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const leftNav = document.getElementById('leftNavbar');
-            const menuIcon = document.querySelector('.menu-icon');
-            const mainContent = document.getElementById('mainContent');
+        // document.addEventListener('click', function(event) {
+        //     const leftNav = document.getElementById('leftNavbar');
+        //     const menuIcon = document.querySelector('.menu-icon');
+        //     const mainContent = document.getElementById('mainContent');
            
-            if (window.innerWidth <= 768 && leftNav.classList.contains('open') &&
-                !leftNav.contains(event.target) && !menuIcon.contains(event.target)) {
-                leftNav.classList.remove('open');
-                mainContent.classList.remove('shifted');
-            }
-        });
+        //     if (window.innerWidth <= 768 && leftNav.classList.contains('open') &&
+        //         !leftNav.contains(event.target) && !menuIcon.contains(event.target)) {
+        //         leftNav.classList.remove('open');
+        //         // mainContent.classList.remove('shifted');
+        //     }
+        // });
  
         // Handle window resize
-        window.addEventListener('resize', function() {
-            const leftNav = document.getElementById('leftNavbar');
-            const mainContent = document.getElementById('mainContent');
+        // window.addEventListener('resize', function() {
+        //     const leftNav = document.getElementById('leftNavbar');
+        //     const mainContent = document.getElementById('mainContent');
            
-            if (window.innerWidth > 768) {
-                // Reset mobile-specific classes on desktop
-                if (leftNav.classList.contains('open')) {
-                    mainContent.classList.add('shifted');
-                }
-            } else {
-                // On mobile, remove shifted class
-                mainContent.classList.remove('shifted');
-            }
-        });
+        //     if (window.innerWidth > 768) {
+        //         // Reset mobile-specific classes on desktop
+        //         if (leftNav.classList.contains('open')) {
+        //             mainContent.classList.add('shifted');
+        //         }
+        //     } else {
+        //         // On mobile, remove shifted class
+        //         mainContent.classList.remove('shifted');
+        //     }
+        // });
  
      function logout() {
     // Custom styled confirm dialog
@@ -137,119 +133,273 @@
     });
 }
 
-// Function to populate all fields with dummy data
-function populateDummyData() {
-    // Banner1 Section
-    document.getElementById('bannerHeading').value = "Contact Us ";
-    document.getElementById('bannerText').value = "We 'd love to hear from you! Reach out with any questions or feedback.";
+//--------------- main js ---------------------//
 
-    // Get In Touch Section - Card 1
-    document.getElementById('cardHeading ').value = "Customer Support";
-    document.getElementById('cardText1 ').value = "support@example.com";
-    document.getElementById('cardText2 ').value = "Mon-Fri: 9AM-5PM";
+// contact.js
 
-    // Add second Get In Touch card
-    const addCardBtn = document.querySelector('.card .btn-primary ');
-    addCardBtn.click();
-    const cardInputs = document.querySelectorAll('.card input[type="text" ] ');
-    cardInputs[3].value = "Sales Inquiries";
-    cardInputs[4].value = "sales@example.com";
-    cardInputs[5].value = "24/7 Support";
+class ContactManager {
+    constructor() {
+        this.allContacts = [];
+        this.filteredContacts = [];
+        this.searchTimeout = null;
+        this.baseUrl = 'https://api.oyjewells.com/api/contact';
+        
+        this.init();
+    }
 
-    // Send Us a Message Section
-    document.getElementById('contactName ').value = "Your Name";
-    document.getElementById('contactEmail ').value = "your.email@example.com";
-    document.getElementById('contactPhone ').value = "+1 (555) 123-4567";
-    document.getElementById('contactMessage ').value = "How can we help you today?";
+    init() {
+        this.setupEventListeners();
+        this.loadContacts();
+    }
 
-    // FAQ Section
-    document.getElementById('question1 ').value = "What are your business hours?";
-    document.getElementById('answer1 ').value = "Our customer support team is available Monday through Friday from 9:00 AM to 5:00 PM EST.";
+    setupEventListeners() {
+        // Search input with 3 letter delay
+        const searchInput = document.getElementById('contactSearchInput');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            
+            // Set new timeout for 3 letter delay (300ms)
+            this.searchTimeout = setTimeout(() => {
+                this.handleSearch(query);
+            }, 300);
+        });
 
-    // Add second FAQ item
-    const addFaqBtn = document.querySelectorAll('.card .btn-primary ')[1];
-    addFaqBtn.click();
-    const faqInputs = document.querySelectorAll('.card input[type="text" ] ');
-    const faqTextareas = document.querySelectorAll('.card textarea ');
-    faqInputs[6].value = "How can I track my order?";
-    faqTextareas[1].value = "You'll receive a tracking number via email once your order ships. You can use this to track your package on our website. ";
+        // Close modal events
+        const closeBtn = document.getElementById('contactCloseBtn');
+        const overlay = document.getElementById('contactOverlay');
+        
+        closeBtn.addEventListener('click', () => this.closeModal());
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this.closeModal();
+            }
+        });
 
-    // Footer Section - Shop Links
-    addShopLink("All Products ", "/products ");
-    addShopLink("New Arrivals ", "/new-arrivals ");
-    addShopLink("Best Sellers ", "/bestsellers ");
+        // Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeModal();
+            }
+        });
+    }
 
-    // Footer Section - Company Links
-    addCompanyLink("About Us ", "/about ");
-    addCompanyLink("Contact ", "/contact ");
-    addCompanyLink("Careers ", "/careers ");
+    async loadContacts() {
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/get-all-contact-us`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contacts = await response.json();
+            this.allContacts = contacts;
+            this.filteredContacts = [...contacts];
+            this.renderTable();
+            
+        } catch (error) {
+            console.error('Error loading contacts:', error);
+            this.showError('Failed to load contacts. Please try again later.');
+        } finally {
+            this.showLoading(false);
+        }
+    }
 
-    // Footer Section - Legal Links
-    addLegalLink("Privacy Policy ", "/privacy ");
-    addLegalLink("Terms of Service ", "/terms ");
+    handleSearch(query) {
+        if (query.length === 0) {
+            this.filteredContacts = [...this.allContacts];
+        } else {
+            this.filteredContacts = this.allContacts.filter(contact =>
+                contact.name.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+        this.renderTable();
+    }
 
-    // Footer Section - Social Icons
-    addSocialIcon("https://facebook.com/example ");
-    addSocialIcon("https://instagram.com/example ");
-    addSocialIcon("https://twitter.com/example ");
+    renderTable() {
+        const tableBody = document.getElementById('contactTableBody');
+        const noDataDiv = document.getElementById('contactNoData');
+        
+        if (this.filteredContacts.length === 0) {
+            tableBody.innerHTML = '';
+            noDataDiv.style.display = 'block';
+            return;
+        }
+        
+        noDataDiv.style.display = 'none';
+        
+        tableBody.innerHTML = this.filteredContacts.map(contact => `
+            <tr>
+                <td>${contact.formId}</td>
+                <td>${this.escapeHtml(contact.name)}</td>
+                <td>${this.escapeHtml(contact.email)}</td>
+                <td>${this.escapeHtml(contact.phone)}</td>
+                <td>
+                    <button 
+                        class="contact-view-btn" 
+                        onclick="contactManager.viewContact(${contact.formId})"
+                    >
+                        View Form
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-    // Footer Section - Below Footer
-    document.querySelector('.card-body textarea[rows="2 "]').value = "© 2025 Kunash Media. All rights reserved. ";
+    async viewContact(formId) {
+        try {
+            // Show modal first, then show loading
+            this.showModal();
+            this.showModalLoading(true);
+            
+            const response = await fetch(`${this.baseUrl}/get-by-formId/${formId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contact = await response.json();
+            
+            // Restore modal structure and populate with data
+            this.showModalLoading(false);
+            this.populateModal(contact);
+            
+        } catch (error) {
+            console.error('Error loading contact details:', error);
+            this.closeModal();
+            alert('Failed to load contact details. Please try again.');
+        }
+    }
+
+    populateModal(contact) {
+        document.getElementById('modalFormId').textContent = contact.formId || 'N/A';
+        document.getElementById('modalName').textContent = contact.name || 'N/A';
+        document.getElementById('modalEmail').textContent = contact.email || 'N/A';
+        document.getElementById('modalPhone').textContent = contact.phone || 'N/A';
+        document.getElementById('modalMessage').textContent = contact.message || 'No message provided';
+    }
+
+    showModal() {
+        const overlay = document.getElementById('contactOverlay');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        const overlay = document.getElementById('contactOverlay');
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    showLoading(show) {
+        const loading = document.getElementById('contactLoading');
+        const tableWrapper = document.querySelector('.contact-table-wrapper');
+        
+        if (show) {
+            loading.style.display = 'block';
+            tableWrapper.style.display = 'none';
+        } else {
+            loading.style.display = 'none';
+            tableWrapper.style.display = 'block';
+        }
+    }
+
+    showModalLoading(show) {
+        const modalBody = document.querySelector('.contact-modal-body');
+        
+        if (show) {
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="contact-loader"></div>
+                    <p>Loading contact details...</p>
+                </div>
+            `;
+        } else {
+            // Restore the original modal structure
+            modalBody.innerHTML = `
+                <div class="contact-form-field">
+                    <label>Form ID:</label>
+                    <span id="modalFormId"></span>
+                </div>
+                <div class="contact-form-field">
+                    <label>Name:</label>
+                    <span id="modalName"></span>
+                </div>
+                <div class="contact-form-field">
+                    <label>Email:</label>
+                    <span id="modalEmail"></span>
+                </div>
+                <div class="contact-form-field">
+                    <label>Phone:</label>
+                    <span id="modalPhone"></span>
+                </div>
+                <div class="contact-form-field">
+                    <label>Message:</label>
+                    <span id="modalMessage" class="contact-message-text"></span>
+                </div>
+            `;
+        }
+    }
+
+    showError(message) {
+        const container = document.querySelector('.contact-container');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'contact-error-message';
+        errorDiv.style.cssText = `
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        `;
+        errorDiv.textContent = message;
+        
+        // Remove any existing error messages
+        const existingError = container.querySelector('.contact-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        container.appendChild(errorDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    // Method to refresh data (can be called externally)
+    refresh() {
+        this.loadContacts();
+    }
 }
 
-// Helper functions for adding multiple links
-function addShopLink(text, url) {
-    addLinkField('shopLinks');
-    const container = document.getElementById('shopLinks');
-    const inputs = container.getElementsByTagName('input');
-    inputs[inputs.length - 2].value = text;
-    inputs[inputs.length - 1].value = url;
+// Initialize the contact manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.contactManager = new ContactManager();
+});
+
+// Export for potential use in other scripts
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ContactManager;
 }
-
-function addCompanyLink(text, url) {
-    addLinkField('companyLinks');
-    const container = document.getElementById('companyLinks');
-    const inputs = container.getElementsByTagName('input');
-    inputs[inputs.length - 2].value = text;
-    inputs[inputs.length - 1].value = url;
-}
-
-function addLegalLink(text, url) {
-    addLinkField('legalLinks');
-    const container = document.getElementById('legalLinks');
-    const inputs = container.getElementsByTagName('input');
-    inputs[inputs.length - 2].value = text;
-    inputs[inputs.length - 1].value = url;
-}
-
-function addSocialIcon(url) {
-    addLinkField('socialIcons');
-    const container = document.getElementById('socialIcons');
-    const inputs = container.getElementsByTagName('input');
-    inputs[inputs.length - 1].value = url;
-}
-
-function addLinkField(containerId) {
-    const container = document.getElementById(containerId);
-    const newFieldGroup = document.createElement('div');
-    newFieldGroup.className = 'row mb-2';
-
-    const count = container.getElementsByClassName('row').length + 1;
-
-    newFieldGroup.innerHTML = `
-        <div class="col-md-5 ">
-            <input type="text " class="form-control mb-2 " placeholder="Text${count} ">
-        </div>
-        <div class="col-md-5 ">
-            <input type="url " class="form-control mb-2 " placeholder="URL${count} ">
-        </div>
-        <div class="col-md-2 ">
-            <button class="btn btn-danger " onclick="this.parentElement.parentElement.remove() ">Remove</button>
-        </div>
-    `;
-
-    container.appendChild(newFieldGroup);
-}
-
-// Call the function when DOM is fully loaded
-document.addEventListener('DOMContentLoaded', populateDummyData);

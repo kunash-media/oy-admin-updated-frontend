@@ -4,7 +4,7 @@
             const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {
@@ -20,51 +20,37 @@
             arrow.classList.toggle('rotated');
         }
  
-        function logout() {
-            alert('Logging out...');
-            // Implement logout logic here
-        }
- 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profileDropdown');
-            const profileIcon = document.querySelector('.profile-icon');
-           
-            if (!profileIcon.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
- 
+
  
  
         // Close left navigation when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const leftNav = document.getElementById('leftNavbar');
-            const menuIcon = document.querySelector('.menu-icon');
-            const mainContent = document.getElementById('mainContent');
+        // document.addEventListener('click', function(event) {
+        //     const leftNav = document.getElementById('leftNavbar');
+        //     const menuIcon = document.querySelector('.menu-icon');
+        //     const mainContent = document.getElementById('mainContent');
            
-            if (window.innerWidth <= 768 && leftNav.classList.contains('open') &&
-                !leftNav.contains(event.target) && !menuIcon.contains(event.target)) {
-                leftNav.classList.remove('open');
-                mainContent.classList.remove('shifted');
-            }
-        });
+        //     if (window.innerWidth <= 768 && leftNav.classList.contains('open') &&
+        //         !leftNav.contains(event.target) && !menuIcon.contains(event.target)) {
+        //         leftNav.classList.remove('open');
+        //         mainContent.classList.remove('shifted');
+        //     }
+        // });
  
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const leftNav = document.getElementById('leftNavbar');
-            const mainContent = document.getElementById('mainContent');
+        // // Handle window resize
+        // window.addEventListener('resize', function() {
+        //     const leftNav = document.getElementById('leftNavbar');
+        //     const mainContent = document.getElementById('mainContent');
            
-            if (window.innerWidth > 768) {
-                // Reset mobile-specific classes on desktop
-                if (leftNav.classList.contains('open')) {
-                    mainContent.classList.add('shifted');
-                }
-            } else {
-                // On mobile, remove shifted class
-                mainContent.classList.remove('shifted');
-            }
-        });
+        //     if (window.innerWidth > 768) {
+        //         // Reset mobile-specific classes on desktop
+        //         if (leftNav.classList.contains('open')) {
+        //             mainContent.classList.add('shifted');
+        //         }
+        //     } else {
+        //         // On mobile, remove shifted class
+        //         mainContent.classList.remove('shifted');
+        //     }
+        // });
  
      function logout() {
     // Custom styled confirm dialog
@@ -173,7 +159,7 @@ function displayOrders(ordersToDisplay) {
     // Check if there are no orders to display
     if (ordersToDisplay.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="16"  style="text-align: center; padding: 20px;">No Order Found</td>';
+        row.innerHTML = '<td colspan="16" style="text-align: center; padding: 20px;">No Order Found</td>';
         tbody.appendChild(row);
         return;
     }
@@ -194,6 +180,20 @@ function displayOrders(ordersToDisplay) {
             ? `${order.customerFirstName} ${order.customerLastName || ''} <span class="oy-today-label">Today</span>`
             : `${order.customerFirstName} ${order.customerLastName || ''}`;
         
+        // Apply status class to a span instead of td
+        const statusClass = {
+            'placed': 'status-placed',
+            'shipped': 'status-shipped',
+            'cancelled': 'status-cancelled',
+            'delivered': 'status-delivered'
+        }[order.status.toLowerCase()] || '';
+
+        // Apply payment method class to a span instead of td
+        const paymentClass = {
+            'cod': 'payment-cod',
+            'paid': 'payment-paid'
+        }[order.paymentMethod.toLowerCase()] || '';
+
         row.innerHTML = `
             <td><input type="checkbox" class="order-checkbox" data-id="${order.orderId}"></td>
             <td>${order.orderId}</td>
@@ -201,10 +201,10 @@ function displayOrders(ordersToDisplay) {
             <td>${order.customerPhone}</td>
             <td>${order.items.map(item => item.name).join(', ')}</td>
             <td>₹${order.total.toFixed(2)}</td>
-            <td id="status-color-id">${order.status}</td>
+            <td><span class="${statusClass}">${order.status}</span></td> <!-- Wrap status in span -->
             <td>${order.orderDate}</td>
             <td>${order.shiprocketOrderId}</td>
-            <td id="oy-today-label-cod">${order.paymentMethod}</td>
+            <td><span class="${paymentClass}">${order.paymentMethod}</span></td> <!-- Wrap payment in span -->
             <td>${order.pickupLocation}</td>
             <td>${order.shippingAddress}</td>
             <td>${order.state}</td>
@@ -301,10 +301,12 @@ function applyFilters() {
     // Apply custom date range filter (only if timeFilter is not set to avoid conflicts)
     if (!timeFilter?.value) {
         if (fromDateInput && fromDateInput.value) {
-            const fromDate = new Date(fromDateInput.value);
+            // Convert dd/mm/yyyy to Date object
+            const [fromDay, fromMonth, fromYear] = fromDateInput.value.split('/');
+            const fromDate = new Date(`${fromYear}-${fromMonth}-${fromDay}`);
             if (!isNaN(fromDate)) {
                 filteredOrders = filteredOrders.filter(order => {
-                    const orderDate = new Date(order.orderDate);
+                    const orderDate = new Date(order.orderDate.split('T')[0]); // Handle yyyy/mm/dd format
                     orderDate.setHours(0, 0, 0, 0); // Normalize to start of day
                     return !isNaN(orderDate) && orderDate >= fromDate;
                 });
@@ -312,11 +314,13 @@ function applyFilters() {
         }
 
         if (toDateInput && toDateInput.value) {
-            const toDate = new Date(toDateInput.value);
+            // Convert dd/mm/yyyy to Date object
+            const [toDay, toMonth, toYear] = toDateInput.value.split('/');
+            const toDate = new Date(`${toYear}-${toMonth}-${toDay}`);
             toDate.setHours(23, 59, 59, 999); // Include entire day
             if (!isNaN(toDate)) {
                 filteredOrders = filteredOrders.filter(order => {
-                    const orderDate = new Date(order.orderDate);
+                    const orderDate = new Date(order.orderDate.split('T')[0]); // Handle yyyy/mm/dd format
                     orderDate.setHours(0, 0, 0, 0); // Normalize to start of day
                     return !isNaN(orderDate) && orderDate <= toDate;
                 });

@@ -5,7 +5,7 @@ class BannerManager {
         this.banners = [];
         this.filteredBanners = [];
         this.currentEditId = null;
-        this.baseUrl = 'http://localhost:8080/api/banners';
+        this.baseUrl = 'https://api.oyjewells.com/api/banners';
         this.maxImagesForBannerOne = 5;
 
         this.initializeElements();
@@ -483,7 +483,7 @@ class BannerManager {
             this.confirmDeleteBtn.disabled = true;
             this.confirmDeleteBtn.textContent = 'Deleting...';
 
-            const response = await fetch(`${this.baseUrl}/delete-banner-page/${this.currentEditId}`, {
+            const response = await fetch(`${this.baseUrl}/${this.currentEditId}`, {
                 method: 'DELETE'
             });
 
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainContent = document.getElementById('mainContent');
            
             leftNav.classList.toggle('open');
-            mainContent.classList.toggle('shifted');
+            // mainContent.classList.toggle('shifted');
         }
  
         function toggleDropdown() {
