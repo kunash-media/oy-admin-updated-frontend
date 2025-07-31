@@ -130,8 +130,8 @@ let products = [];
 async function fetchData() {
     try {
         const [ordersResponse, productsResponse] = await Promise.all([
-            fetch('http://localhost:8080/api/orders/get-all-orders'),
-            fetch('http://localhost:8080/api/products/get-all-product')
+            fetch('https://api.oyjewells.com/api/orders/get-all-orders'),
+            fetch('https://api.oyjewells.com/api/products/get-all-product')
         ]);
         
         orders = await ordersResponse.json();
